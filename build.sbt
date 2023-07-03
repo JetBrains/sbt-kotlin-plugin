@@ -29,7 +29,7 @@ bintrayRepository := "sbt-plugins"
 
 publishMavenStyle := false
 
-licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
+licenses += ("MIT", url("https://opensource.org/license/mit/"))
 
 bintrayOrganization := None
 
