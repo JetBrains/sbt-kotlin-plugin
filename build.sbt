@@ -2,7 +2,7 @@ name := "sbt-kotlin-plugin"
 
 organization := "org.jetbrains.scala"
 
-version := "2.0.1-SNAPSHOT"
+version := "3.0.0-SNAPSHOT"
 
 scalacOptions ++= Seq("-deprecation","-Xlint","-feature")
 /*
