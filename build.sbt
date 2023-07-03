@@ -6,10 +6,6 @@ version := "3.0.0-SNAPSHOT"
 
 scalacOptions ++= Seq("-deprecation","-Xlint","-feature")
 
-libraryDependencies ++= Seq(
-  "org.scalaz" %% "scalaz-core" % "7.2.28"
-)
-
 sbtPlugin := true
 
 // build info plugin

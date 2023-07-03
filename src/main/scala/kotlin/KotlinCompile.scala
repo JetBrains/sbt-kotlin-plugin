@@ -17,13 +17,19 @@ import scala.util.Try
  */
 object KotlinCompile {
 
+  private def memoize[K, V](f: K => V): K => V = {
+    val cache = new java.util.concurrent.ConcurrentHashMap[K, V]()
+    // don't inline
+    cache.computeIfAbsent(_, f(_))
+  }
+
+  private lazy val memoizedKotlinReflection =
+    memoize[Classpath, KotlinReflection](KotlinReflection.fromClasspath)
+
   def grepjar(jarfile: File)(pred: JarEntry => Boolean): Boolean =
     jarfile.isFile && Using.jarFile(false)(jarfile) { in =>
       in.entries.asScala exists pred
     }
-
-  lazy val kotlinMemo = scalaz.Memo.immutableHashMapMemo[Classpath, KotlinReflection](cp =>
-    KotlinReflection.fromClasspath(cp))
 
   def compile(kotlinVersion: String,
               options: Seq[String],
@@ -34,7 +40,7 @@ object KotlinCompile {
               compilerClasspath: Classpath,
               output: File, s: TaskStreams): Unit = {
     import language.reflectiveCalls
-    val stub = KotlinStub(s, kotlinMemo(compilerClasspath))
+    val stub = KotlinStub(s, memoizedKotlinReflection(compilerClasspath))
     val args = stub.compilerArgs
     stub.parse(kotlinVersion, args.instance, options.toList)
     val kotlinFiles = "*.kt" || "*.kts"
