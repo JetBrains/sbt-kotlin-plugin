@@ -1,15 +1,14 @@
 package kotlin
 
+import sbt.*
+import sbt.Keys.{Classpath, TaskStreams}
+import sbt.internal.inc.classpath.ClasspathUtil
+import sbt.io.*
+
 import java.io.File
 import java.lang.reflect.{Field, Method}
 import java.util.jar.JarEntry
-
-import sbt.Keys.{Classpath, TaskStreams}
-import sbt._
-import sbt.io._
-import sbt.internal.inc.classpath.ClasspathUtilities
-
-import collection.JavaConverters._
+import scala.collection.JavaConverters.*
 import scala.util.Try
 
 /**
@@ -75,7 +74,7 @@ object KotlinCompile {
 
 object KotlinReflection {
   def fromClasspath(cp: Classpath): KotlinReflection = {
-    val cl = ClasspathUtilities.toLoader(cp.map(_.data))
+    val cl = ClasspathUtil.toLoader(cp.map(_.data))
     val compilerClass = cl.loadClass("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")
     val servicesClass = cl.loadClass("org.jetbrains.kotlin.config.Services")
     val messageCollectorClass = cl.loadClass("org.jetbrains.kotlin.cli.common.messages.MessageCollector")
@@ -105,17 +104,20 @@ object KotlinReflection {
       servicesClass.getDeclaredField("EMPTY"))
   }
 }
+
 case class KotlinReflection(cl: ClassLoader,
-                            servicesClass: Class[_],
-                            compilerClass: Class[_],
-                            compilerArgsClass: Class[_],
-                            messageCollectorClass: Class[_],
-                            commonCompilerArgsClass: Class[_],
+                            servicesClass: Class[?],
+                            compilerClass: Class[?],
+                            compilerArgsClass: Class[?],
+                            messageCollectorClass: Class[?],
+                            commonCompilerArgsClass: Class[?],
                             compilerExec: Method,
                             servicesEmptyField: Field)
+
 case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
+  import kref.*
+
   import language.reflectiveCalls
-  import kref._
 
   def messageCollector: AnyRef = {
     type CompilerMessageLocation = {
@@ -124,7 +126,7 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
       def getColumn: Int
     }
 
-    import java.lang.reflect.{Proxy, InvocationHandler}
+    import java.lang.reflect.{InvocationHandler, Proxy}
     val messageCollectorInvocationHandler = new InvocationHandler {
       override def invoke(proxy: scala.Any, method: Method, args: Array[AnyRef]) = {
         if (method.getName == "report") {
@@ -155,7 +157,7 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
     val commonToolArguments = cl.loadClass(
       "org.jetbrains.kotlin.cli.common.arguments.CommonToolArguments")
     val parserMethod = parser.getMethod("parseCommandLineArguments", classOf[java.util.List[java.lang.String]], commonToolArguments)
-    import collection.JavaConverters._
+    import collection.JavaConverters.*
     parserMethod.invoke(null, options.asJava, args)
   }
 

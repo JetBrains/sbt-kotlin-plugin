@@ -1,7 +1,5 @@
 package kotlin
 
-import scala.math.Ordering
-
 case class KotlinVersion(versionString: String) extends AnyVal
 
 object KotlinVersion {

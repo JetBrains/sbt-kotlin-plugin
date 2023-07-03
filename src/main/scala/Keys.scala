@@ -1,11 +1,12 @@
 package kotlin
 
-import sbt._
+import sbt.{Def, *}
 
 /**
  * @author pfnguyen
  */
 object Keys {
+  // TODO: this trait is not used and doesn't have implementations
   sealed trait KotlinCompileOrder
 
   val Kotlin = config("kotlin")
@@ -24,18 +25,18 @@ object Keys {
   val kotlincJvmTarget = SettingKey[String]("kotlinc-jvm-target",
     "jvm target to use for building")
 
-  def kotlinLib(name: String) = sbt.Keys.libraryDependencies +=
+  def kotlinLib(name: String): Def.Setting[Seq[ModuleID]] = sbt.Keys.libraryDependencies +=
     "org.jetbrains.kotlin" % ("kotlin-" + name) % kotlinVersion.value
 
-  def kotlinPlugin(name: String) = sbt.Keys.libraryDependencies +=
+  def kotlinPlugin(name: String): Def.Setting[Seq[ModuleID]] = sbt.Keys.libraryDependencies +=
     "org.jetbrains.kotlin" % ("kotlin-" + name) % kotlinVersion.value % "compile-internal"
 
-  def kotlinClasspath(config: Configuration, classpathKey: Def.Initialize[sbt.Keys.Classpath]): Setting[_] =
-    kotlincOptions in config ++= {
-    "-cp" :: classpathKey.value.map(_.data.getAbsolutePath).mkString(
-      java.io.File.pathSeparator) ::
-      Nil
-  }
+  def kotlinClasspath(config: Configuration, classpathKey: Def.Initialize[sbt.Keys.Classpath]): Setting[?] =
+    config / kotlincOptions ++= {
+      "-cp" ::
+        classpathKey.value.map(_.data.getAbsolutePath).mkString(java.io.File.pathSeparator) ::
+        Nil
+    }
 
   case class KotlinPluginOptions(pluginId: String) {
     def option(key: String, value: String) =
