@@ -1,6 +1,6 @@
-name := "kotlin-plugin"
+name := "sbt-kotlin-plugin"
 
-organization := "com.hanhuy.sbt"
+organization := "org.jetbrains.scala"
 
 version := "2.0.1-SNAPSHOT"
 

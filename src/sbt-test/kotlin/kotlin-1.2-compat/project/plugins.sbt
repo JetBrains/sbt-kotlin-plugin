@@ -1,1 +1,1 @@
-addSbtPlugin("com.hanhuy.sbt" % "kotlin-plugin" % sys.props("plugin.version"))
+addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % sys.props("plugin.version"))
