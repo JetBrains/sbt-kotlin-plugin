@@ -9,6 +9,7 @@ import java.io.File
 import java.lang.reflect.{Field, Method}
 import java.util.jar.JarEntry
 import scala.collection.JavaConverters.*
+import scala.math.Ordered.orderingToOrdered
 import scala.util.Try
 
 /**
@@ -24,7 +25,8 @@ object KotlinCompile {
   lazy val kotlinMemo = scalaz.Memo.immutableHashMapMemo[Classpath, KotlinReflection](cp =>
     KotlinReflection.fromClasspath(cp))
 
-  def compile(options: Seq[String],
+  def compile(kotlinVersion: String,
+              options: Seq[String],
               jvmTarget: String,
               sourceDirs: Seq[File],
               kotlinPluginOptions: Seq[String],
@@ -34,7 +36,7 @@ object KotlinCompile {
     import language.reflectiveCalls
     val stub = KotlinStub(s, kotlinMemo(compilerClasspath))
     val args = stub.compilerArgs
-    stub.parse(args.instance, options.toList)
+    stub.parse(kotlinVersion, args.instance, options.toList)
     val kotlinFiles = "*.kt" || "*.kts"
     val javaFiles = "*.java"
 
@@ -149,16 +151,36 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
     Proxy.newProxyInstance(cl, Array(messageCollectorClass), messageCollectorInvocationHandler)
   }
 
-  def parse(args: Object, options: List[String]): Unit = {
+  def parse(kotlinVersion: String, args: Object, options: List[String]): Unit = {
     // TODO FIXME, this is much worse than it used to be, the parsing api has been
     // deeply in flux since 1.1.x
     val parser = kref.cl.loadClass(
       "org.jetbrains.kotlin.cli.common.arguments.ParseCommandLineArgumentsKt")
     val commonToolArguments = cl.loadClass(
       "org.jetbrains.kotlin.cli.common.arguments.CommonToolArguments")
-    val parserMethod = parser.getMethod("parseCommandLineArguments", classOf[java.util.List[java.lang.String]], commonToolArguments)
-    import collection.JavaConverters.*
-    parserMethod.invoke(null, options.asJava, args)
+
+    val parseMethodName = "parseCommandLineArguments"
+    val stringListClass = classOf[java.util.List[java.lang.String]]
+
+    // parse method received a new argument in 1.7.0
+    // see https://github.com/JetBrains/kotlin/commit/683a3e74a000f959a932505592e1d68a073296cd
+    if (KotlinVersion(kotlinVersion) >= KotlinVersion("1.7.0")) {
+      val parserMethod = parser.getMethod(
+        parseMethodName,
+        stringListClass,
+        commonToolArguments,
+        classOf[Boolean]
+      )
+      // false is a default value
+      parserMethod.invoke(null, options.asJava, args, java.lang.Boolean.FALSE)
+    } else {
+      val parserMethod = parser.getMethod(
+        parseMethodName,
+        stringListClass,
+        commonToolArguments
+      )
+      parserMethod.invoke(null, options.asJava, args)
+    }
   }
 
   def compilerArgs = {

@@ -56,12 +56,14 @@ object KotlinPlugin extends AutoPlugin {
     kotlincJvmTarget := kotlincJvmTarget.value,
     kotlincPluginOptions := kotlincPluginOptions.value,
     kotlinCompile := Def.task {
-        KotlinCompile.compile(kotlincOptions.value,
-          kotlincJvmTarget.value,
-          sourceDirectories.value, kotlincPluginOptions.value,
-          dependencyClasspath.value, (KotlinInternal / managedClasspath).value,
-          classDirectory.value, streams.value)
-    }.dependsOn (Compile / compile / compileInputs).value,
+      KotlinCompile.compile(
+        kotlinVersion.value,
+        kotlincOptions.value,
+        kotlincJvmTarget.value,
+        sourceDirectories.value, kotlincPluginOptions.value,
+        dependencyClasspath.value, (KotlinInternal / managedClasspath).value,
+        classDirectory.value, streams.value)
+    }.dependsOn(Compile / compile / compileInputs).value,
     compile := (compile dependsOn kotlinCompile).value,
     kotlinSource := sourceDirectory.value / "kotlin",
     Test / definedTests ++= KotlinTest.kotlinTests.value
