@@ -1,30 +1,13 @@
-name := "sbt-kotlin-plugin"
+lazy val sbtKotlinPlugin = project.in(file("."))
+  .enablePlugins(SbtPlugin)
+  .settings(
+    name         := "sbt-kotlin-plugin",
+    organization := "org.jetbrains.scala",
+    licenses     += ("MIT", url("https://opensource.org/license/mit/")),
 
-organization := "org.jetbrains.scala"
+    scalaVersion   := "2.12.17",
+    scalacOptions ++= Seq("-deprecation", "-feature", "-Werror", "-Xlint", "-release", "8"),
+    javacOptions  ++= Seq("--release", "8"),
 
-version := "3.0.0-SNAPSHOT"
-
-scalacOptions ++= Seq("-deprecation","-Xlint","-feature")
-
-sbtPlugin := true
-
-// build info plugin
-
-enablePlugins(BuildInfoPlugin, SbtPlugin)
-
-buildInfoPackage := "kotlin"
-
-// bintray
-bintrayRepository := "sbt-plugins"
-
-publishMavenStyle := false
-
-licenses += ("MIT", url("https://opensource.org/license/mit/"))
-
-bintrayOrganization := None
-
-// scripted
-scriptedLaunchOpts ++= Seq(
-  "-Xmx1024m",
-  "-Dplugin.version=" + version.value
-)
+    scriptedLaunchOpts += "-Dplugin.version=" + version.value
+  )
