@@ -1,5 +1,6 @@
 import kotlin.Keys._
 
+enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 
 kotlinVersion := "1.3.21"

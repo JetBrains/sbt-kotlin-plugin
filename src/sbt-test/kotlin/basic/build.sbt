@@ -1,5 +1,6 @@
 import kotlin.Keys._
 
+enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 
 val listClasses = taskKey[Unit]("listClasses")

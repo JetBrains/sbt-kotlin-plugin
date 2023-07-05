@@ -9,7 +9,7 @@ import sbt.{Def, Keys as _, *}
  * @author pfnguyen
  */
 object KotlinPlugin extends AutoPlugin {
-  override def trigger = allRequirements
+  override def trigger = noTrigger
 
   override def requires: Plugins = JvmPlugin
 

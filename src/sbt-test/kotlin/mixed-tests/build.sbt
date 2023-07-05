@@ -4,6 +4,7 @@ import sbt.complete.Parsers.spaceDelimited
 
 import scala.xml.{NodeSeq, XML}
 
+enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 
 libraryDependencies ++= Seq(
