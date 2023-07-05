@@ -1,5 +1,6 @@
 lazy val sbtKotlinPlugin = project.in(file("."))
   .enablePlugins(SbtPlugin)
+  .settings(Publishing.settings)
   .settings(
     name         := "sbt-kotlin-plugin",
     organization := "org.jetbrains.scala",
@@ -9,5 +10,5 @@ lazy val sbtKotlinPlugin = project.in(file("."))
     scalacOptions ++= Seq("-deprecation", "-feature", "-Werror", "-Xlint", "-release", "8"),
     javacOptions  ++= Seq("--release", "8"),
 
-    scriptedLaunchOpts += "-Dplugin.version=" + version.value
+    scriptedLaunchOpts += "-Dplugin.version=" + version.value,
   )
