@@ -1,16 +1,17 @@
 # kotlin-plugin
 
-[![Build Status](https://travis-ci.org/pfn/kotlin-plugin.svg?branch=master)](https://travis-ci.org/pfn/kotlin-plugin)
-
 Build kotlin code using sbt
-
-Current version 2.0.0
 
 ## Usage
 
-* for sbt 1.0.0+ `addSbtPlugin("com.hanhuy.sbt" % "kotlin-plugin" % "2.0.0")`
-* for sbt 0.13.x `addSbtPlugin("com.hanhuy.sbt" % "kotlin-plugin" % "1.0.9")`
-* Kotlin code will build automatically from `src/XXX/kotlin`
+* Insert into project/plugins.sbt:
+```sbt
+addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "<version>")
+```
+* Enable plugin for your project:
+```sbt
+lazy val myProject = project.in(file(".")).enablePlugins(KotlinPlugin)
+```
 * If necessary, add `kotlinLib("stdlib")`, it is not included by default.
   * Loading standard kotlin libraries and plugins: use `kotlinLib(NAME)` as
     above to load standard kotlin modules provided by JetBrains. For JetBrains
@@ -34,17 +35,14 @@ Current version 2.0.0
 * `kotlinSource`: specifies kotlin source directory, defaults to
   `src/main/kotlin` and `src/test/kotlin`
 * `kotlinVersion`: specifies versions of kotlin compiler and libraries to use,
-   defaults to `1.3.41`
+   defaults to `1.3.50`
+* `kotlincOptions`: options to pass to the kotlin compiler
+* `kotlincJvmTarget`: specifies JVM target version for building, defaults to `1.6`
 * `kotlinLib(LIB)`: load a standard kotlin library, for example
   `kotlinLib("stdlib")`; the library will utilize the version specified in
   `kotlinVersion`
   plugin
-* `kotlincOptions`: options to pass to the kotlin compiler
 
 ### Examples
 
 * See the [test cases](src/sbt-test/kotlin) for this plugin
-
-### Limitations
-
-* currently requires kotlin 1.1.4+
