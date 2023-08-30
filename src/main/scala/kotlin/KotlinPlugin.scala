@@ -15,17 +15,19 @@ object KotlinPlugin extends AutoPlugin {
 
   override def projectConfigurations: Seq[Configuration] = KotlinInternal :: Nil
 
-  private def kotlinScriptCompilerDeps(kotlinVer: String) = {
+  private def kotlinScriptCompilerDeps(kotlinVer: String, provided: Boolean) = {
     import scala.math.Ordering.Implicits.infixOrderingOps
 
     if (KotlinVersion(kotlinVer) <= KotlinVersion("1.3.21")) {
-      Seq(
-        "org.jetbrains.kotlin" % "kotlin-script-runtime" % kotlinVer
-      )
+      val kotlinScriptRuntime = "org.jetbrains.kotlin" % "kotlin-script-runtime" % kotlinVer
+      val dependency = if (provided) kotlinScriptRuntime % Provided else kotlinScriptRuntime
+      Seq(dependency)
     } else {
+      val kotlinScriptingCompilerEmbeddable = "org.jetbrains.kotlin" % "kotlin-scripting-compiler-embeddable" % kotlinVer
+      val dependency = if (provided) kotlinScriptingCompilerEmbeddable % Provided else kotlinScriptingCompilerEmbeddable
       Seq(
-        "org.jetbrains.kotlin" % "kotlin-scripting-compiler-embeddable" % kotlinVer % KotlinInternal.name,
-        "org.jetbrains.kotlin" % "kotlin-scripting-compiler-embeddable" % kotlinVer
+        kotlinScriptingCompilerEmbeddable % KotlinInternal.name,
+        dependency
       )
     }
   }
@@ -33,10 +35,11 @@ object KotlinPlugin extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       "org.jetbrains.kotlin" % "kotlin-compiler-embeddable" % kotlinVersion.value % KotlinInternal.name
-    ) ++ kotlinScriptCompilerDeps(kotlinVersion.value),
+    ) ++ kotlinScriptCompilerDeps(kotlinVersion.value, kotlinRuntimeProvided.value),
     KotlinInternal / managedClasspath := Classpaths.managedJars(KotlinInternal, classpathTypes.value, update.value),
     kotlinVersion := "1.3.50",
     kotlincJvmTarget := "1.6",
+    kotlinRuntimeProvided := false,
     kotlincOptions := Nil,
     kotlincPluginOptions := Nil,
     watchSources ++= {

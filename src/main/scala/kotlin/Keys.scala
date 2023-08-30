@@ -24,6 +24,9 @@ object Keys {
   val kotlincJvmTarget = SettingKey[String]("kotlinc-jvm-target",
     "jvm target to use for building")
 
+  val kotlinRuntimeProvided = SettingKey[Boolean]("kotlin-stdlib-provided",
+    "Mark Kotlin runtime library dependencies as Provided, useful for IntelliJ IDEA plugins where Kotlin standard libraries are included in the platform")
+
   def kotlinLib(name: String): Def.Setting[Seq[ModuleID]] = sbt.Keys.libraryDependencies +=
     "org.jetbrains.kotlin" % ("kotlin-" + name) % kotlinVersion.value
 
