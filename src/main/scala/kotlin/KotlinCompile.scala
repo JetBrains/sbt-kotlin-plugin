@@ -51,13 +51,13 @@ object KotlinCompile {
       f0.relativeTo(f).isDefined && f != f0)) map (d =>
       (d, (d ** javaFiles).get)) filter (_._2.nonEmpty)
     if (kotlinSources.isEmpty) {
-      s.log.debug("No sources found, skipping kotlin compile")
+      s.log.debug("No sources found, skipping Kotlin compile")
     } else {
       s.log.debug(s"Compiling sources $kotlinSources")
       def pluralizeSource(count: Int) =
         if (count == 1) "source" else "sources"
       val message =
-        s"Compiling ${kotlinSources.size} Kotlin ${pluralizeSource(kotlinSources.size)}"
+        s"Compiling ${kotlinSources.size} Kotlin ${pluralizeSource(kotlinSources.size)} to ${output.getAbsolutePath} ..."
       s.log.info(message)
       args.freeArgs = (kotlinSources ++ javaSources.map(_._1)).map(_.getAbsolutePath).asJava
       args.noStdlib = true

@@ -75,7 +75,7 @@ object KotlinTest {
       JavaAnalyze(xs.map(_.toPath), srcs, log, output, None)(callback, loader, readAPI)
     }._2
     val frameworks = (Test / loadedTestFrameworks).value.values.toList
-    log.info(s"Compiling ${srcs.length} Kotlin source to $out...")
+    log.info(s"Compiling ${srcs.length} Kotlin source to $out ...")
     Tests.discover(frameworks, a0, log)._1
   }
 }
