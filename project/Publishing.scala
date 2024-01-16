@@ -1,4 +1,4 @@
-import sbt.Def
+import sbt.{Def, ScmInfo, url}
 import sbt.Keys.*
 import xerial.sbt.Sonatype.GitHubHosting
 import xerial.sbt.Sonatype.autoImport.sonatypeProjectHosting
@@ -15,5 +15,12 @@ object Publishing {
     sonatypeProjectHosting := Some(GitHubHosting("JetBrains", "sbt-kotlin-plugin", "scala-developers@jetbrains.com")),
     versionScheme := Some("semver-spec"),
     publishIfNotSnapshot,
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/JetBrains/sbt-kotlin-plugin"),
+        "scm:git:git@github.com:JetBrains/sbt-kotlin-plugin.git",
+        "scm:git:git@github.com:JetBrains/sbt-kotlin-plugin.git"
+      )
+    )
   )
 }
