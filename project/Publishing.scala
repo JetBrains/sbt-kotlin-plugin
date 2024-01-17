@@ -1,7 +1,7 @@
-import sbt.{Def, ScmInfo, url}
 import sbt.Keys.*
+import sbt.{Def, ScmInfo, url}
 import xerial.sbt.Sonatype.GitHubHosting
-import xerial.sbt.Sonatype.autoImport.sonatypeProjectHosting
+import xerial.sbt.Sonatype.autoImport.{sonatypeProfileName, sonatypeProjectHosting}
 
 object Publishing {
   private val publishIfNotSnapshot = publish := {
@@ -12,6 +12,7 @@ object Publishing {
   }
 
   val settings: Seq[Def.Setting[?]] = Seq(
+    sonatypeProfileName := "org.jetbrains",
     sonatypeProjectHosting := Some(GitHubHosting("JetBrains", "sbt-kotlin-plugin", "scala-developers@jetbrains.com")),
     versionScheme := Some("semver-spec"),
     publishIfNotSnapshot,
