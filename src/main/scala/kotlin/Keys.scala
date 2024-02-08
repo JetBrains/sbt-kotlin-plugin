@@ -6,9 +6,6 @@ import sbt.{Def, *}
  * @author pfnguyen
  */
 object Keys {
-  // TODO: this trait is not used and doesn't have implementations
-  sealed trait KotlinCompileOrder
-
   val Kotlin = config("kotlin")
   val KotlinInternal = config("kotlin-internal").hide
 
