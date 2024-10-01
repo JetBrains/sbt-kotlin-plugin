@@ -53,20 +53,15 @@ object KotlinPlugin extends AutoPlugin {
   // public to allow kotlin compile in other configs beyond Compile and Test
   val kotlinCompileSettings = List(
     unmanagedSourceDirectories += kotlinSource.value,
+    unmanagedSources ++= {
+      import language.postfixOps
+      val kotlinSources = "*.kt" || "*.kts"
+      sourceDirectories.value.flatMap(_ ** kotlinSources get)
+    },
     kotlincOptions := kotlincOptions.value,
     kotlincJvmTarget := kotlincJvmTarget.value,
     kotlincPluginOptions := kotlincPluginOptions.value,
-    kotlinCompile := Def.task {
-      KotlinCompile.compile(
-        kotlinVersion.value,
-        kotlincOptions.value,
-        kotlincJvmTarget.value,
-        sourceDirectories.value, kotlincPluginOptions.value,
-        dependencyClasspath.value, (KotlinInternal / managedClasspath).value,
-        classDirectory.value, streams.value)
-    }.dependsOn(Compile / compile / compileInputs).value,
-    compile := (compile dependsOn kotlinCompile).value,
-    kotlinSource := sourceDirectory.value / "kotlin",
-    Test / definedTests ++= KotlinTest.kotlinTests.value
+    compileIncremental := KotlinCompile.compileTask.value,
+    kotlinSource := sourceDirectory.value / "kotlin"
   )
 }

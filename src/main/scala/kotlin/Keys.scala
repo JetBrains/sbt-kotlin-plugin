@@ -9,8 +9,6 @@ object Keys {
   val Kotlin = config("kotlin")
   val KotlinInternal = config("kotlin-internal").hide
 
-  val kotlinCompile = TaskKey[Unit]("kotlin-compile",
-    "runs kotlin compilation, occurs before normal compilation")
   val kotlincPluginOptions = TaskKey[Seq[String]]("kotlinc-plugin-options",
     "kotlin compiler plugin options")
   val kotlinSource = SettingKey[File]("kotlin-source", "kotlin source directory")

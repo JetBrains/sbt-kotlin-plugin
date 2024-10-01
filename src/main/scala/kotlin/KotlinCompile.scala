@@ -1,14 +1,17 @@
 package kotlin
 
-import sbt.*
-import sbt.Keys.{Classpath, TaskStreams}
+import kotlin.Keys.*
+import sbt.Keys.*
+import sbt.internal.inc.*
+import sbt.internal.inc.caching.ClasspathCache
 import sbt.internal.inc.classpath.ClasspathUtil
-import sbt.io.*
+import sbt.*
+import xsbti.compile.*
 
 import java.io.File
 import java.lang.reflect.{Field, Method}
-import java.util.jar.JarEntry
 import scala.collection.JavaConverters.*
+import scala.jdk.OptionConverters.*
 import scala.util.Try
 
 /**
@@ -22,60 +25,119 @@ object KotlinCompile {
     cache.computeIfAbsent(_, f(_))
   }
 
-  private lazy val memoizedKotlinReflection =
+  private[kotlin] lazy val memoizedKotlinReflection =
     memoize[Classpath, KotlinReflection](KotlinReflection.fromClasspath)
 
-  def grepjar(jarfile: File)(pred: JarEntry => Boolean): Boolean =
-    jarfile.isFile && Using.jarFile(false)(jarfile) { in =>
-      in.entries.asScala exists pred
+  def compileTask: Def.Initialize[Task[CompileResult]] = Def.task {
+    val logStreams = streams.value
+    val inputs = (compile / compileInputs).value
+    val converter = inputs.options().converter().orElse(PlainVirtualFileConverter.converter)
+    val out = inputs.options().classesDirectory()
+
+    val srcs = inputs.options().sources().toSet
+
+    val output = new SingleOutput {
+      override def getOutputDirectory: File = out.toFile
     }
 
-  def compile(kotlinVersion: String,
-              options: Seq[String],
-              jvmTarget: String,
-              sourceDirs: Seq[File],
-              kotlinPluginOptions: Seq[String],
-              classpath: Classpath,
-              compilerClasspath: Classpath,
-              output: File, s: TaskStreams): Unit = {
-    import language.reflectiveCalls
-    val stub = KotlinStub(s, memoizedKotlinReflection(compilerClasspath))
-    val args = stub.compilerArgs
-    stub.parse(kotlinVersion, args.instance, options.toList)
-    val kotlinFiles = "*.kt" || "*.kts"
-    val javaFiles = "*.java"
+    val kotlincVersion = kotlinVersion.value
 
-    val kotlinSources = sourceDirs.flatMap(d => (d ** kotlinFiles).get).distinct
-    val javaSources = sourceDirs.filterNot(f => sourceDirs.exists(f0 =>
-      f0.relativeTo(f).isDefined && f != f0)) map (d =>
-      (d, (d ** javaFiles).get)) filter (_._2.nonEmpty)
-    if (kotlinSources.isEmpty) {
-      s.log.debug("No sources found, skipping Kotlin compile")
-    } else {
-      s.log.debug(s"Compiling sources $kotlinSources")
-      def pluralizeSource(count: Int) =
-        if (count == 1) "source" else "sources"
-      val message =
-        s"Compiling ${kotlinSources.size} Kotlin ${pluralizeSource(kotlinSources.size)} to ${output.getAbsolutePath} ..."
-      s.log.info(message)
-      args.freeArgs = (kotlinSources ++ javaSources.map(_._1)).map(_.getAbsolutePath).asJava
-      args.noStdlib = true
-      args.jvmTarget = jvmTarget
-      val fcpjars = classpath.map(_.data.getAbsoluteFile)
-      val (pluginjars, cpjars) = fcpjars.partition {
-        grepjar(_)(_.getName.startsWith(
-          "META-INF/services/org.jetbrains.kotlin.compiler.plugin"))
-      }
-      val cp = cpjars.mkString(File.pathSeparator)
-      val pcp = pluginjars.map(_.getAbsolutePath).toArray
-      args.classpath = Option(args.classpath[String]).fold(cp)(_ + File.pathSeparator + cp)
-      args.pluginClasspaths = Option(args.pluginClasspaths[Array[String]]).fold(pcp)(_ ++ pcp)
-      args.pluginOptions = Option(args.pluginOptions[Array[String]]).fold(
-        kotlinPluginOptions.toArray)(_ ++ kotlinPluginOptions.toArray[String])
-      output.mkdirs()
-      args.destination = output.getAbsolutePath
-      stub.compile(args.instance)
+
+    val previousResult = previousCompile.value
+    val previousAnalysis = previousResult.analysis().orElse(Analysis.empty)
+
+    val classpath = inputs.options().classpath()
+
+    val stamper = inputs.options().stamper().orElseGet(() => Stamps.timeWrapBinaryStamps(converter))
+
+    val config = {
+      val outputJarContent = JarUtils.createOutputJarContent(output)
+
+      MixedAnalyzingCompiler.makeConfig(
+        inputs.compilers().scalac(),
+        inputs.compilers().javaTools().javac(),
+        srcs.toSeq,
+        converter,
+        classpath.toSeq,
+        inputs.setup().cache(),
+        inputs.setup().progress().toScala,
+        inputs.options().scalacOptions(),
+        inputs.options().javacOptions(),
+        previousAnalysis,
+        previousResult.setup().toScala,
+        inputs.setup().perClasspathEntryLookup(),
+        inputs.setup().reporter(),
+        inputs.options().order(),
+        inputs.setup().skip(),
+        inputs.setup().incrementalCompilerOptions(),
+        output,
+        outputJarContent,
+        None,
+        None,
+        stamper,
+        inputs.setup().extra().toList.map(t => (t.get1(), t.get2()))
+      )
     }
+
+    val lookup = new LookupImpl(config, previousResult.setup().toScala)
+
+    val classpathHash = {
+      val fromLookup = lookup.hashClasspath(classpath)
+      if (fromLookup.isPresent)
+        fromLookup.get()
+      else
+        ClasspathCache.hashClasspath(classpath.map(converter.toPath))
+    }
+
+    val miniSetup = MiniSetup.of(
+      output,
+      MiniOptions.of(classpathHash, inputs.options().scalacOptions(), inputs.options().javacOptions()),
+      kotlincVersion,
+      inputs.options().order(),
+      true,
+      inputs.setup().extra()
+    )
+
+    val (searchClasspath, _) = MixedAnalyzingCompiler.searchClasspathAndLookup(config)
+
+    val compiler = new AnalyzingKotlinCompiler(
+      kotlincVersion,
+      kotlincOptions.value,
+      kotlincJvmTarget.value,
+      kotlincPluginOptions.value,
+      inputs.compilers().javaTools().javac(),
+      inputs.options().javacOptions(),
+      inputs.compilers().scalac().scalaInstance(),
+      inputs.setup().incrementalCompilerOptions().useCustomizedFileManager(),
+      config.sources,
+      classpathOptions.value,
+      dependencyClasspath.value,
+      (KotlinInternal / managedClasspath).value,
+      searchClasspath,
+      out.toFile,
+      converter,
+      inputs.setup().reporter(),
+      config.progress,
+      logStreams
+    )
+
+    val (success, analysis) = Incremental(
+      srcs,
+      converter,
+      lookup,
+      previousAnalysis,
+      inputs.setup().incrementalCompilerOptions(),
+      miniSetup,
+      stamper,
+      output,
+      JarUtils.createOutputJarContent(output),
+      None,
+      None,
+      config.progress,
+      logStreams.log,
+    )(compiler.compile)
+
+    CompileResult.of(analysis, miniSetup, success)
   }
 }
 
@@ -217,14 +279,13 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
     }
   }
 
-  def compile(args: AnyRef): Unit = {
+  def compile(args: AnyRef): Boolean = {
     val compiler = compilerClass.getDeclaredConstructor().newInstance()
     val result = compilerExec.invoke(compiler,
       messageCollector, servicesEmptyField.get(null), args: java.lang.Object)
     result.toString match {
-      case "COMPILATION_ERROR" | "INTERNAL_ERROR" =>
-        throw new MessageOnlyException("Compilation failed. See log for more details")
-      case _ =>
+      case "COMPILATION_ERROR" | "INTERNAL_ERROR" => false
+      case _ => true
     }
   }
 }
