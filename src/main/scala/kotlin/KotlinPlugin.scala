@@ -16,8 +16,6 @@ object KotlinPlugin extends AutoPlugin {
   override def projectConfigurations: Seq[Configuration] = KotlinInternal :: Nil
 
   private def kotlinScriptCompilerDeps(kotlinVer: String, provided: Boolean) = {
-    import scala.math.Ordering.Implicits.infixOrderingOps
-
     if (KotlinVersion(kotlinVer) <= KotlinVersion("1.3.21")) {
       val kotlinScriptRuntime = "org.jetbrains.kotlin" % "kotlin-script-runtime" % kotlinVer
       val dependency = if (provided) kotlinScriptRuntime % Provided else kotlinScriptRuntime

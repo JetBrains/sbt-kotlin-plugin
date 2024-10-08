@@ -9,7 +9,6 @@ import java.io.File
 import java.lang.reflect.{Field, Method}
 import java.util.jar.JarEntry
 import scala.collection.JavaConverters.*
-import scala.math.Ordered.orderingToOrdered
 import scala.util.Try
 
 /**

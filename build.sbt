@@ -10,4 +10,6 @@ lazy val sbtKotlinPlugin = project.in(file("."))
     scalaVersion   := "2.12.17",
     scalacOptions ++= Seq("-deprecation", "-feature", "-Werror", "-Xlint", "-release", "8"),
     javacOptions  ++= Seq("--release", "8"),
+
+    libraryDependencies += "org.scalameta" %% "munit" % "1.0.2" % Test,
   )
