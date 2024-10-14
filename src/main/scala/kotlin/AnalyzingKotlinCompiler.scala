@@ -125,7 +125,6 @@ class AnalyzingKotlinCompiler(
           args.pluginClasspaths = Option(args.pluginClasspaths[Array[String]]).fold(pcp)(_ ++ pcp)
           args.pluginOptions = Option(args.pluginOptions[Array[String]]).fold(
             kotlinPluginOptions.toArray)(_ ++ kotlinPluginOptions.toArray[String])
-          out.mkdirs()
           args.destination = out.getAbsolutePath
           val success = stub.compile(args.instance)
 

@@ -100,6 +100,11 @@ object KotlinCompile {
 
     val (searchClasspath, _) = MixedAnalyzingCompiler.searchClasspathAndLookup(config)
 
+    val outDir = out.toFile
+    if (!outDir.exists()) {
+      outDir.mkdirs()
+    }
+
     val compiler = new AnalyzingKotlinCompiler(
       kotlincVersion,
       kotlincOptions.value,
@@ -114,7 +119,7 @@ object KotlinCompile {
       dependencyClasspath.value,
       (KotlinInternal / managedClasspath).value,
       searchClasspath,
-      out.toFile,
+      outDir,
       converter,
       inputs.setup().reporter(),
       config.progress,
