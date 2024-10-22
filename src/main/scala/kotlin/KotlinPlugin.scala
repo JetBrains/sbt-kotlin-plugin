@@ -31,6 +31,8 @@ object KotlinPlugin extends AutoPlugin {
   }
 
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
+    autoScalaLibrary := false,
+    crossPaths := false,
     libraryDependencies ++= Seq(
       "org.jetbrains.kotlin" % "kotlin-compiler-embeddable" % kotlinVersion.value % KotlinInternal.name
     ) ++ kotlinScriptCompilerDeps(kotlinVersion.value, kotlinRuntimeProvided.value),
