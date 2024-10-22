@@ -42,8 +42,7 @@ object KotlinCompile {
 
     val kotlincVersion = kotlinVersion.value
 
-
-    val previousResult = previousCompile.value
+    val previousResult = inputs.previousResult()
     val previousAnalysis = previousResult.analysis().orElse(Analysis.empty)
 
     val classpath = inputs.options().classpath()
