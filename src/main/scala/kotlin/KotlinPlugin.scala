@@ -55,11 +55,7 @@ object KotlinPlugin extends AutoPlugin {
   // public to allow kotlin compile in other configs beyond Compile and Test
   val kotlinCompileSettings = List(
     unmanagedSourceDirectories += kotlinSource.value,
-    unmanagedSources ++= {
-      import language.postfixOps
-      val kotlinSources = "*.kt" || "*.kts"
-      sourceDirectories.value.flatMap(_ ** kotlinSources get)
-    },
+    unmanagedSources / includeFilter := ("*.java" | "*.kt" | "*.kts"),
     kotlincOptions := kotlincOptions.value,
     kotlincJvmTarget := kotlincJvmTarget.value,
     kotlincPluginOptions := kotlincPluginOptions.value,
