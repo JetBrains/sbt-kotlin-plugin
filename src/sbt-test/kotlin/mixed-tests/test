@@ -1,3 +1,5 @@
 > compile
 > test
 > checkTestPass "MixedTest"
+$ exists target/classes/META-INF/mixed-tests.main.kotlin_module
+$ exists target/test-classes/META-INF/mixed-tests.test.kotlin_module

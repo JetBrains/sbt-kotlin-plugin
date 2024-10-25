@@ -104,10 +104,21 @@ object KotlinCompile {
       outDir.mkdirs()
     }
 
+    val kotlinModuleName = {
+      val name = moduleName.value
+      val config = configuration.value match {
+        case Compile => "main"
+        case Test => "test"
+        case config => config.name
+      }
+      s"$name.$config"
+    }
+
     val compiler = new AnalyzingKotlinCompiler(
       kotlincVersion,
       kotlincOptions.value,
       kotlincJvmTarget.value,
+      kotlinModuleName,
       kotlincPluginOptions.value,
       inputs.compilers().javaTools().javac(),
       inputs.options().javacOptions(),

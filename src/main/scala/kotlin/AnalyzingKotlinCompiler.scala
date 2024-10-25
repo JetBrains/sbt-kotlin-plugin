@@ -27,6 +27,7 @@ class AnalyzingKotlinCompiler(
   kotlinVersion: String,
   kotlinOptions: Seq[String],
   jvmTarget: String,
+  moduleName: String,
   kotlinPluginOptions: Seq[String],
   javac: JavaCompiler,
   javacOptions: Seq[String],
@@ -112,6 +113,7 @@ class AnalyzingKotlinCompiler(
           args.noStdlib = true
           args.noReflect = true
           args.jvmTarget = jvmTarget
+          args.moduleName = moduleName
           args.friendPaths = Array(out.getAbsolutePath)
           args.freeArgs = (kotlinSources ++ javaSources).map(_.getAbsolutePath).asJava
           val fcpjars = classpath.map(_.data.getAbsoluteFile)

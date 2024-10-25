@@ -2,3 +2,4 @@
 > listClasses
 $ exists target/classes/demo/SimpleKt.class
 $ exists target/classes/SimpleScript.class
+$ exists target/classes/META-INF/kotlin-1-3-compat.main.kotlin_module

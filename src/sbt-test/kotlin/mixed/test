@@ -2,4 +2,5 @@
 > compile
 > info
 $ exists target/classes/demo/SimpleKt.class
+$ exists target/classes/META-INF/mixed.main.kotlin_module
 > checkClasses

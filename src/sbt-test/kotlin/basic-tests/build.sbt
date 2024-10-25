@@ -4,6 +4,8 @@ import sbt.complete.Parsers.spaceDelimited
 
 import scala.xml.{NodeSeq, XML}
 
+name := "basic-tests"
+
 enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 

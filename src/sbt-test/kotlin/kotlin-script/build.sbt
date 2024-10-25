@@ -1,5 +1,7 @@
 import kotlin.Keys._
 
+name := "kotlin-script"
+
 enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 

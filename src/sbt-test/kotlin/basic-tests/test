@@ -1,3 +1,5 @@
 > compile
 > test
 > checkTestPass "SimpleTest"
+$ exists target/classes/META-INF/basic-tests.main.kotlin_module
+$ exists target/test-classes/META-INF/basic-tests.test.kotlin_module

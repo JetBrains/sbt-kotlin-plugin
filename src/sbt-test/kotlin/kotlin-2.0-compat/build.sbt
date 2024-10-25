@@ -1,5 +1,7 @@
 import kotlin.Keys._
 
+name := "kotlin-2.0-compat"
+
 enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 

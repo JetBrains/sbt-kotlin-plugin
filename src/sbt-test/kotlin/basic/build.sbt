@@ -1,5 +1,7 @@
 import kotlin.Keys._
 
+name := "basic"
+
 enablePlugins(KotlinPlugin)
 kotlinLib("stdlib")
 
