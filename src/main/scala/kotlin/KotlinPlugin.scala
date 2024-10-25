@@ -58,6 +58,15 @@ object KotlinPlugin extends AutoPlugin {
     unmanagedSources / includeFilter := ("*.java" | "*.kt" | "*.kts"),
     kotlincOptions := kotlincOptions.value,
     kotlincJvmTarget := kotlincJvmTarget.value,
+    kotlinModuleName := {
+      val name = moduleName.value
+      val config = configuration.value match {
+        case Compile => "main"
+        case Test => "test"
+        case c => c.name
+      }
+      s"$name.$config"
+    },
     kotlincPluginOptions := kotlincPluginOptions.value,
     compileIncremental := KotlinCompile.compileTask.value,
     kotlinSource := sourceDirectory.value / "kotlin"
