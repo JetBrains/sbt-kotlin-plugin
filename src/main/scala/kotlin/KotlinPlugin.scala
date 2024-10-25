@@ -69,6 +69,8 @@ object KotlinPlugin extends AutoPlugin {
     },
     kotlincPluginOptions := kotlincPluginOptions.value,
     compileIncremental := KotlinCompile.compileTask.value,
-    kotlinSource := sourceDirectory.value / "kotlin"
+    kotlinSource := sourceDirectory.value / "kotlin",
+    packageCache := RemoteCache.packageCacheTask.value,
+    pullRemoteCache := RemoteCache.pullRemoteCacheTask.value
   )
 }
