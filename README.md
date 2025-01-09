@@ -1,3 +1,5 @@
+[![Version](https://index.scala-lang.org/jetbrains/sbt-kotlin-plugin/sbt-kotlin-plugin/latest.svg)](https://index.scala-lang.org/jetbrains/sbt-kotlin-plugin/sbt-kotlin-plugin)
+
 # kotlin-plugin
 
 Build kotlin code using sbt
