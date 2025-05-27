@@ -1,0 +1,5 @@
+> compile
+> listClasses
+$ exists target/classes/demo/SimpleKt.class
+$ absent target/classes/SimpleScript.class
+$ exists target/classes/META-INF/kotlin-2-2-compat.main.kotlin_module

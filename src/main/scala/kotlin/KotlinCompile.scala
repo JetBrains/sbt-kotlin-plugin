@@ -1,11 +1,11 @@
 package kotlin
 
 import kotlin.Keys.*
+import sbt.*
 import sbt.Keys.*
 import sbt.internal.inc.*
 import sbt.internal.inc.caching.ClasspathCache
 import sbt.internal.inc.classpath.ClasspathUtil
-import sbt.*
 import xsbti.compile.*
 
 import java.io.File
@@ -202,7 +202,7 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
 
     import java.lang.reflect.{InvocationHandler, Proxy}
     val messageCollectorInvocationHandler = new InvocationHandler {
-      override def invoke(proxy: scala.Any, method: Method, args: Array[AnyRef]) = {
+      override def invoke(proxy: scala.Any, method: Method, args: Array[AnyRef]): AnyRef = {
         if (method.getName == "report") {
           val Array(severity, message, location) = args
           val l = location.asInstanceOf[CompilerMessageLocation]
@@ -215,6 +215,9 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
             case "ERROR"  | "EXCEPTION" => s.log.error(msg)
             case "OUTPUT" | "LOGGING"   => s.log.debug(msg)
           }
+          return null
+        } else if (method.getName == "hasErrors") {
+          return java.lang.Boolean.FALSE
         }
         null
       }
