@@ -5,25 +5,11 @@ import sbt.{Def, DirectCredentials, ScmInfo, url}
 
 object Publishing {
 
-  val SonatypeRepoName = "Sonatype Nexus Repository Manager"
-
-  private val publishIfNotSnapshot = publish := {
-    if (isSnapshot.value)
-      sys.error("Do not publish snapshot versions. Set a tag 'vX.Y.Z' to proceed. Example: v3.20.2")
-    else
-      publish.value
-  }
+  private val SonatypeRepoName = "Sonatype Nexus Repository Manager"
 
   val settings: Seq[Def.Setting[?]] = Seq(
     versionScheme := Some("semver-spec"),
-    publishIfNotSnapshot,
-    
-    // Central Portal configuration - sbt-ci-release 1.11.0 defaults to Central Portal
-    // No explicit sonatypeCredentialHost setting needed for Central Portal
-    
-    // Required for sbt plugins with Central Portal
-    sbtPluginPublishLegacyMavenStyle := false,
-    
+
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/JetBrains/sbt-kotlin-plugin"),
