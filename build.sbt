@@ -1,22 +1,5 @@
 ThisBuild / organization := "org.jetbrains.scala"
 
-// Optional but nice-to-have
-ThisBuild / organizationName     := "JetBrains"
-ThisBuild / organizationHomepage := Some(url("https://www.jetbrains.com/"))
-
-ThisBuild / licenses += ("MIT", url("https://opensource.org/license/mit/"))
-
-ThisBuild / homepage := Some(url("https://github.com/JetBrains/sbt-kotlin-plugin"))
-
-ThisBuild / developers := List(
-  Developer(
-    id    = "JetBrains",
-    name  = "JetBrains",
-    email = "scala-developers@jetbrains.com",
-    url   = url("https://github.com/JetBrains")
-  )
-)
-
 lazy val sbtKotlinPlugin = project.in(file("."))
   .enablePlugins(SbtPlugin)
   .settings(Scripted.settings)
