@@ -116,7 +116,7 @@ class AnalyzingKotlinCompiler(
           args.moduleName = moduleName
           args.friendPaths = Array(out.getAbsolutePath)
           args.freeArgs = (kotlinSources ++ javaSources).map(_.getAbsolutePath).asJava
-          val fcpjars = classpath.map(_.data.getAbsoluteFile)
+          val fcpjars = classpath.map(_.data.getAbsoluteFile).filter(_.exists())
           val (pluginjars, cpjars) = fcpjars.partition {
             grepjar(_)(_.getName.startsWith(
               "META-INF/services/org.jetbrains.kotlin.compiler.plugin"))
