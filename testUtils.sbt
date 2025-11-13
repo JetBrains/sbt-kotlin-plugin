@@ -26,7 +26,7 @@ generateCompatTestSkeleton := {
            |val listClasses = taskKey[Unit]("listClasses")
            |
            |listClasses := {
-           |  val classes = (Compile / classDirectory).value.listFiles()
+           |  val classes = (Compile / backendOutput).value.listFiles()
            |  streams.value.log.info("classes: " + classes.mkString("Array(", ", ", ")"))
            |}
            |""".stripMargin)

@@ -1,0 +1,5 @@
+-> compile
+$ absent target/**/demo/SimpleError.class
+$ absent target/**/META-INF/compiler-error.main.kotlin_module
+$ exists target/**/file-log/log.txt
+> assertCompilerError

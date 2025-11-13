@@ -1,7 +1,8 @@
-import kotlin.Keys._
+import org.jetbrains.sbt.kotlin.Keys._
 
 import sbt.complete.Parsers.spaceDelimited
 
+import java.nio.file.{Files, Paths}
 import scala.xml.{NodeSeq, XML}
 
 name := "mixed-tests"
@@ -18,7 +19,19 @@ checkTestPass := {
   val args: Seq[String] = spaceDelimited("<arg>").parsed
   val testName = args.head
 
-  val xml = XML.load(s"target/test-reports/TEST-$testName.xml")
+  val sbt1Path =
+    Option(s"target/test-reports/TEST-$testName.xml")
+      .filter(p => Files.exists(Paths.get(p)))
+
+  val converter = fileConverter.value
+  val sbt2Path =
+    Option(converter.toPath((Test / backendOutput).value).getParent.resolve("test-reports").resolve(s"TEST-$testName.xml"))
+      .map(_.toString)
+      .filter(p => Files.exists(Paths.get(p)))
+
+  val reportPath = sbt1Path.orElse(sbt2Path).get
+
+  val xml = XML.load(reportPath)
   val totalTests = getInt(xml \\ "testsuite" \ "@tests")
   val failures = getInt(xml \\ "testsuite" \ "@failures")
   val errors = getInt(xml \\ "testsuite" \ "@errors")
