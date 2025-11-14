@@ -18,5 +18,7 @@ jobs:
           java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
-      - name: Compile & Test
-        run: sbt test scripted
+      - name: Compile & Test sbt 1.x
+        run: sbt ++2.12.20 test scripted
+      - name: Compile & Test sbt 2.x
+        run: sbt ++3.7.4 test scripted
