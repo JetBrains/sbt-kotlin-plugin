@@ -1,6 +1,5 @@
 package kotlin
 
-import scala.collection.compat.toOptionCompanionExtension
 import scala.math.Ordered.orderingToOrdered
 import scala.math.Ordering.Implicits.seqDerivedOrdering
 
@@ -70,7 +69,7 @@ object KotlinVersion {
     if (numberString.isEmpty) Some(constructor(None))
     else {
       val number = numberString.toIntOption
-      Option.when(number.isDefined)(constructor(number))
+      if (number.isDefined) Some(constructor(number)) else None
     }
   }
 

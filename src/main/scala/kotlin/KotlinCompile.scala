@@ -11,7 +11,6 @@ import xsbti.compile.*
 import java.io.File
 import java.lang.reflect.{Field, Method}
 import scala.collection.JavaConverters.*
-import scala.jdk.OptionConverters.*
 import scala.util.Try
 
 /**
@@ -59,11 +58,11 @@ object KotlinCompile {
         converter,
         classpath.toSeq,
         inputs.setup().cache(),
-        inputs.setup().progress().toScala,
+        optionalToOption(inputs.setup().progress()),
         inputs.options().scalacOptions(),
         inputs.options().javacOptions(),
         previousAnalysis,
-        previousResult.setup().toScala,
+        optionalToOption(previousResult.setup()),
         inputs.setup().perClasspathEntryLookup(),
         inputs.setup().reporter(),
         inputs.options().order(),
@@ -78,7 +77,7 @@ object KotlinCompile {
       )
     }
 
-    val lookup = new LookupImpl(config, previousResult.setup().toScala)
+    val lookup = new LookupImpl(config, optionalToOption(previousResult.setup()))
 
     val classpathHash = {
       val fromLookup = lookup.hashClasspath(classpath)
@@ -144,6 +143,9 @@ object KotlinCompile {
 
     CompileResult.of(analysis, miniSetup, success)
   }
+
+  private def optionalToOption[A](optional: java.util.Optional[A]): Option[A] =
+    if (optional.isPresent) Some(optional.get) else None
 }
 
 object KotlinReflection {
