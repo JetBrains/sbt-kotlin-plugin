@@ -4,6 +4,11 @@
 
 Build kotlin code using sbt
 
+## Requirement
+`sbt-kotlin-plugin` requires sbt 1.6 or later. Earlier sbt versions are not supported and will
+result in exceptions being thrown at runtime. This is because the plugin depends on specific
+functionality first shipped with sbt 1.6.
+
 ## Usage
 
 * Insert into project/plugins.sbt:
