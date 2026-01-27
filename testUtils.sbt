@@ -17,7 +17,7 @@ generateCompatTestSkeleton := {
       val baseDir = (Compile / baseDirectory).value / "src" / "sbt-test" / "kotlin" / s"kotlin-$version-compat"
 
       IO.write(baseDir / "build.sbt",
-        s"""import kotlin.Keys._
+        s"""import org.jetbrains.sbt.kotlin.Keys._
            |
            |kotlinLib("stdlib")
            |

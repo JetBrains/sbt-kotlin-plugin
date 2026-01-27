@@ -1,4 +1,4 @@
-import kotlin.Keys._
+import org.jetbrains.sbt.kotlin.Keys._
 
 name := "kotlin-2.0-compat"
 
