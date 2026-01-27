@@ -1,4 +1,4 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
 import sbt.JavaAnalyzeBridge
 import sbt.Keys.{Classpath, TaskStreams}

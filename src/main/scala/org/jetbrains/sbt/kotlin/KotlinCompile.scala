@@ -1,6 +1,6 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
-import kotlin.Keys.*
+import org.jetbrains.sbt.kotlin.Keys.*
 import sbt.*
 import sbt.Keys.*
 import sbt.internal.inc.*
@@ -13,9 +13,6 @@ import java.lang.reflect.{Field, Method}
 import scala.collection.JavaConverters.*
 import scala.util.Try
 
-/**
- * @author pfnguyen
- */
 object KotlinCompile {
 
   private def memoize[K, V](f: K => V): K => V = {

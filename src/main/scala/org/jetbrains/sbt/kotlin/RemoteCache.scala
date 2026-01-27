@@ -1,6 +1,6 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
-import kotlin.Keys.kotlinModuleName
+import org.jetbrains.sbt.kotlin.Keys.kotlinModuleName
 import sbt.*
 import sbt.Keys.{classDirectory, packageCache, pullRemoteCache}
 import sbt.internal.inc.JarUtils

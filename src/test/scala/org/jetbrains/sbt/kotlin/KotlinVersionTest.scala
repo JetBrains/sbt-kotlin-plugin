@@ -1,4 +1,4 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
 final class KotlinVersionTest extends munit.FunSuite {
   test("version parsing") {

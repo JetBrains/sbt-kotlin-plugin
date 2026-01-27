@@ -1,4 +1,4 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
 import scala.math.Ordered.orderingToOrdered
 import scala.math.Ordering.Implicits.seqDerivedOrdering

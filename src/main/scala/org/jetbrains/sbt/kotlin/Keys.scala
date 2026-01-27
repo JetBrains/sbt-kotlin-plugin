@@ -1,10 +1,7 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
 import sbt.{Def, *}
 
-/**
- * @author pfnguyen
- */
 object Keys {
   val Kotlin = config("kotlin")
   val KotlinInternal = config("kotlin-internal").hide

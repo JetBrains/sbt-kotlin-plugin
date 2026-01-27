@@ -1,13 +1,10 @@
-package kotlin
+package org.jetbrains.sbt.kotlin
 
-import kotlin.Keys.*
+import org.jetbrains.sbt.kotlin.Keys.*
 import sbt.Keys.*
 import sbt.plugins.JvmPlugin
 import sbt.{Def, Keys as _, *}
 
-/**
- * @author pfnguyen
- */
 object KotlinPlugin extends AutoPlugin {
   override def trigger = noTrigger
 
