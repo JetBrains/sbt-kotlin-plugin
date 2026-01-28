@@ -38,7 +38,7 @@ class AnalyzingKotlinCompiler(
   classpath: Classpath,
   compilerClasspath: Classpath,
   searchClasspath: Seq[VirtualFile],
-  out: File,
+  output: SingleOutput,
   converter: FileConverter,
   reporter: Reporter,
   progressOpt: Option[CompileProgress],
@@ -51,6 +51,8 @@ class AnalyzingKotlinCompiler(
     callback: AnalysisCallback,
     classFileManager: ClassFileManager
   ): Unit = {
+    val out = output.getOutputDirectoryAsPath
+
     val allSourceFiles = allSources.map(vf => converter.toPath(vf).toFile)
 
     val kotlinSources = allSourceFiles.filter { f =>
@@ -61,7 +63,7 @@ class AnalyzingKotlinCompiler(
 
     if (kotlinSources.nonEmpty || javaSources.nonEmpty) {
       // Outline chunks of compiles so that .class files end up in right location
-      val chunks: Map[Option[Path], Seq[VirtualFile]] = Map(Option(out.toPath) -> allSources)
+      val chunks: Map[Option[Path], Seq[VirtualFile]] = Map(Option(out) -> allSources)
 
       // Memoize the known class files in the Javac output location
       val memo = for { case (Some(outputPath), srcs) <- chunks } yield {
@@ -74,18 +76,19 @@ class AnalyzingKotlinCompiler(
       def pluralizeSource(count: Int) =
         if (count == 1) "source" else "sources"
 
+      val outDirAbsolutePath = out.toAbsolutePath.normalize().toString
       val message =
         if (kotlinSources.nonEmpty) {
           val ktCount = kotlinSources.size
           if (javaSources.nonEmpty) {
             val javaCount = javaSources.size
-            s"compiling $ktCount Kotlin ${pluralizeSource(ktCount)} and $javaCount Java ${pluralizeSource(javaCount)} to ${out.getAbsolutePath} ..."
+            s"compiling $ktCount Kotlin ${pluralizeSource(ktCount)} and $javaCount Java ${pluralizeSource(javaCount)} to $outDirAbsolutePath ..."
           } else {
-            s"compiling $ktCount Kotlin ${pluralizeSource(ktCount)} to ${out.getAbsolutePath} ..."
+            s"compiling $ktCount Kotlin ${pluralizeSource(ktCount)} to $outDirAbsolutePath ..."
           }
         } else {
           val javaCount = javaSources.size
-          s"compiling $javaCount Java ${pluralizeSource(javaCount)} to ${out.getAbsolutePath} ..."
+          s"compiling $javaCount Java ${pluralizeSource(javaCount)} to $outDirAbsolutePath ..."
         }
       log.info(message)
 
@@ -113,20 +116,21 @@ class AnalyzingKotlinCompiler(
           args.noReflect = true
           args.jvmTarget = jvmTarget
           args.moduleName = moduleName
-          args.friendPaths = Array(out.getAbsolutePath)
+          args.friendPaths = Array(outDirAbsolutePath)
           args.freeArgs = (kotlinSources ++ javaSources).map(_.getAbsolutePath).asJava
           val fcpjars = classpath.map(_.data.getAbsoluteFile).filter(_.exists())
           val (pluginjars, cpjars) = fcpjars.partition {
             grepjar(_)(_.getName.startsWith(
               "META-INF/services/org.jetbrains.kotlin.compiler.plugin"))
           }
-          val cp = out.getAbsolutePath + File.pathSeparator + cpjars.mkString(File.pathSeparator)
+          val pathSeparator = java.io.File.pathSeparator
+          val cp = outDirAbsolutePath + pathSeparator + cpjars.mkString(pathSeparator)
           val pcp = pluginjars.map(_.getAbsolutePath).toArray
-          args.classpath = Option(args.classpath[String]).fold(cp)(_ + File.pathSeparator + cp)
+          args.classpath = Option(args.classpath[String]).fold(cp)(_ + pathSeparator + cp)
           args.pluginClasspaths = Option(args.pluginClasspaths[Array[String]]).fold(pcp)(_ ++ pcp)
           args.pluginOptions = Option(args.pluginOptions[Array[String]]).fold(
             kotlinPluginOptions.toArray)(_ ++ kotlinPluginOptions.toArray[String])
-          args.destination = out.getAbsolutePath
+          args.destination = outDirAbsolutePath
           val success = stub.compile(args.instance)
 
           if (!success) {
@@ -134,10 +138,6 @@ class AnalyzingKotlinCompiler(
             throw new CompileFailed(Array(args.toString), msg, reporter.problems())
           }
         }
-      }
-
-      val output = new SingleOutput {
-        override def getOutputDirectory: File = out
       }
 
       progressOpt.foreach { progress =>
@@ -149,7 +149,7 @@ class AnalyzingKotlinCompiler(
         log.debug(s"compiling Java sources: $javaSources")
 
         timed(javaCompilationPhase, log) {
-          val absoluteClasspath = converter.toVirtualFile(out.toPath) +: classpath.map(_.data.toPath).map(converter.toVirtualFile)
+          val absoluteClasspath = converter.toVirtualFile(out) +: classpath.map(_.data.toPath).map(converter.toVirtualFile)
           val args = sbt.internal.inc.javac.JavaCompiler.commandArguments(
             absoluteClasspath,
             converter,
@@ -195,7 +195,7 @@ class AnalyzingKotlinCompiler(
 
       // Construct class loader to analyze dependencies of generated class files
       val loader = ClasspathUtil.toLoader(
-        Seq(out.toPath) ++ classpath.files.map(_.toPath) ++ searchClasspath.map(converter.toPath)
+        Seq(out) ++ classpath.files.map(_.toPath) ++ searchClasspath.map(converter.toPath)
       )
 
       timed(bytecodeAnalysisPhase, log) {

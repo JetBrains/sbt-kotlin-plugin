@@ -7,7 +7,7 @@ import sbt.internal.inc.*
 import sbt.internal.inc.caching.ClasspathCache
 import xsbti.compile.*
 
-import java.io.File
+import java.nio.file.{Files, Path}
 
 object KotlinCompile {
 
@@ -28,8 +28,9 @@ object KotlinCompile {
 
     val srcs = inputs.options().sources().toSet
 
-    val output = new SingleOutput {
-      override def getOutputDirectory: File = out.toFile
+    val output: SingleOutput = new SingleOutput {
+      override def getOutputDirectory: java.io.File = out.toFile
+      override def getOutputDirectoryAsPath: Path = out
     }
 
     val kotlincVersion = kotlinVersion.value
@@ -91,9 +92,8 @@ object KotlinCompile {
 
     val (searchClasspath, _) = MixedAnalyzingCompiler.searchClasspathAndLookup(config)
 
-    val outDir = out.toFile
-    if (!outDir.exists()) {
-      outDir.mkdirs()
+    if (!Files.exists(out)) {
+      Files.createDirectories(out)
     }
 
     val compiler = new AnalyzingKotlinCompiler(
@@ -111,7 +111,7 @@ object KotlinCompile {
       dependencyClasspath.value,
       (KotlinInternal / managedClasspath).value,
       searchClasspath,
-      outDir,
+      output,
       converter,
       inputs.setup().reporter(),
       config.progress,
