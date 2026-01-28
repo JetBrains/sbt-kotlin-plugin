@@ -5,7 +5,7 @@ import scala.language.dynamics
 /**
  * Encapsulates reflective access to the Kotlin compiler internal args class.
  */
-class CompilerArgs(kref: KotlinReflection) extends Dynamic {
+final class CompilerArgs(kref: KotlinReflection) extends Dynamic {
   val instance: AnyRef = kref.compilerArgsClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
 
   def selectDynamic[A](field: String): A = {

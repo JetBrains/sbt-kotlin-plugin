@@ -5,7 +5,7 @@ import scala.language.reflectiveCalls
 /**
  * Encapsulates reflective access to the Kotlin compiler message location class.
  */
-class CompilerMessageLocationProxy(instance: AnyRef) {
+private final class CompilerMessageLocationProxy(instance: AnyRef) {
   private type CompilerMessageLocation = {
     def getPath: String
     def getLine: Int
