@@ -8,23 +8,22 @@ import scala.jdk.CollectionConverters.seqAsJavaListConverter
 case class KotlinStub(log: Logger, kref: KotlinReflection) {
   import kref.*
 
-  import language.reflectiveCalls
-
   def messageCollector: AnyRef = {
-    type CompilerMessageLocation = {
-      def getPath: String
-      def getLine: Int
-      def getColumn: Int
-    }
-
     import java.lang.reflect.{InvocationHandler, Proxy}
     val messageCollectorInvocationHandler = new InvocationHandler {
       override def invoke(proxy: scala.Any, method: Method, args: Array[AnyRef]): AnyRef = {
         if (method.getName == "report") {
           val Array(severity, message, location) = args
-          val l = location.asInstanceOf[CompilerMessageLocation]
-          val msg = Option(l).map(x => x.getPath).fold(message.toString)(loc =>
-            loc + ": " + l.getLine + ", " + l.getColumn + ": " + message)
+          val msg =
+            if (location == null) message.toString
+            else {
+              val proxy = new CompilerMessageLocationProxy(location)
+              val path = proxy.path
+              val line = proxy.line
+              val column = proxy.column
+              s"$path: $line, $column: $message"
+            }
+
           severity.toString match {
             case "INFO"                 => log.info(msg)
             case "WARNING"              => log.warn(msg)
