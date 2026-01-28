@@ -105,7 +105,6 @@ class AnalyzingKotlinCompiler(
         log.debug(s"compiling Kotlin sources: $kotlinSources")
 
         timed(kotlinCompilationPhase, log) {
-          import language.reflectiveCalls
           val stub = KotlinStub(log, KotlinCompile.memoizedKotlinReflection(compilerClasspath))
           val args = stub.compilerArgs
           stub.parse(kotlinVersion, args.instance, "-Xallow-no-source-files" :: kotlinOptions.toList)

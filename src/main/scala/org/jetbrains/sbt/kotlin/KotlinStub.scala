@@ -74,34 +74,7 @@ case class KotlinStub(log: Logger, kref: KotlinReflection) {
     }
   }
 
-  def compilerArgs = {
-    import language.dynamics
-    new Dynamic {
-      def withFirstUpper(string: String): String = string.head.toUpper + string.tail
-      def getterName(field: String) = s"get${withFirstUpper(field)}"
-      def setterName(field: String) = s"set${withFirstUpper(field)}"
-
-      def selectDynamic[A](field: String): A = {
-        val methodName = getterName(field)
-        val getterOpt = compilerArgsClass.getMethods.find(_.getName == methodName)
-        getterOpt match {
-          case Some(getter) => getter.invoke(instance).asInstanceOf[A]
-          case None => compilerArgsClass.getField(field).get(instance).asInstanceOf[A]
-        }
-      }
-
-      def updateDynamic(field: String)(value: Any): Unit = {
-        val methodName = setterName(field)
-        val setterOpt = compilerArgsClass.getMethods.find(_.getName == methodName)
-        setterOpt match {
-          case Some(setter) => setter.invoke(instance, value.asInstanceOf[Object])
-          case None => compilerArgsClass.getField(field).set(instance, value)
-        }
-      }
-
-      val instance = compilerArgsClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
-    }
-  }
+  def compilerArgs: CompilerArgs = new CompilerArgs(kref)
 
   def compile(args: AnyRef): Boolean = {
     val compiler = compilerClass.getDeclaredConstructor().newInstance()
