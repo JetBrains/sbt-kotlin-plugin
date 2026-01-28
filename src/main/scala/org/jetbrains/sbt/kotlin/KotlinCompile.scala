@@ -39,6 +39,8 @@ object KotlinCompile {
     val previousAnalysis = previousResult.analysis().orElse(Analysis.empty)
 
     val classpath = inputs.options().classpath()
+    val classpathIndexedSeq = classpath.toIndexedSeq
+    val classpathAsNioPaths = classpathIndexedSeq.map(converter.toPath(_).toAbsolutePath.normalize())
 
     val stamper = inputs.options().stamper().orElseGet(() => Stamps.timeWrapBinaryStamps(converter))
 
@@ -50,7 +52,7 @@ object KotlinCompile {
         inputs.compilers().javaTools().javac(),
         srcs.toSeq,
         converter,
-        classpath.toSeq,
+        classpathIndexedSeq,
         inputs.setup().cache(),
         optionalToOption(inputs.setup().progress()),
         inputs.options().scalacOptions(),
@@ -78,7 +80,7 @@ object KotlinCompile {
       if (fromLookup.isPresent)
         fromLookup.get()
       else
-        ClasspathCache.hashClasspath(classpath.map(converter.toPath))
+        ClasspathCache.hashClasspath(classpathAsNioPaths)
     }
 
     val miniSetup = MiniSetup.of(
@@ -96,9 +98,6 @@ object KotlinCompile {
       Files.createDirectories(out)
     }
 
-    val dependenciesClasspath =
-      dependencyClasspath.value.map(_.data.toPath.toAbsolutePath.normalize())
-
     val compilerClasspath: Seq[Path] =
       (KotlinInternal / managedClasspath).value.map(_.data.toPath.toAbsolutePath.normalize())
 
@@ -114,7 +113,7 @@ object KotlinCompile {
       inputs.setup().incrementalCompilerOptions().useCustomizedFileManager(),
       config.sources,
       classpathOptions.value,
-      dependenciesClasspath,
+      classpathAsNioPaths,
       compilerClasspath,
       searchClasspath,
       output,
