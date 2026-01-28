@@ -47,7 +47,7 @@ assertCompilerError := {
     val nonAnsi = stripAnsiCodes(message)
     val start = nonAnsi.startsWith("[error]")
     val sep = java.io.File.separator
-    val end = nonAnsi.endsWith(s"src${sep}main${sep}kotlin${sep}demo${sep}SimpleError.kt: 5, 17: Unresolved reference 'name'.")
+    val end = nonAnsi.endsWith(s"src${sep}main${sep}kotlin${sep}demo${sep}SimpleError.kt:5:17: Unresolved reference 'name'.")
     start && end
   }
   assert(compilerError1.isDefined, "First compiler error message not found in log")
@@ -56,7 +56,7 @@ assertCompilerError := {
     val nonAnsi = stripAnsiCodes(message)
     val start = nonAnsi.startsWith("[error]")
     val sep = java.io.File.separator
-    val end = nonAnsi.endsWith(s"src${sep}main${sep}kotlin${sep}demo${sep}SimpleError.kt: 6, 21: Unresolved reference 'age'.")
+    val end = nonAnsi.endsWith(s"src${sep}main${sep}kotlin${sep}demo${sep}SimpleError.kt:6:21: Unresolved reference 'age'.")
     start && end
   }
   assert(compilerError2.isDefined, "Second compiler error message not found in log")

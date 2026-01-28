@@ -21,7 +21,7 @@ case class KotlinStub(log: Logger, kref: KotlinReflection) {
               val path = proxy.path
               val line = proxy.line
               val column = proxy.column
-              s"$path: $line, $column: $message"
+              s"$path:$line:$column: $message"
             }
 
           severity.toString match {
