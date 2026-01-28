@@ -1,0 +1,21 @@
+> Test/compile
+$ exists target/classes/demo/SimpleKt.class
+$ exists target/classes/META-INF/compilation-cache.main.kotlin_module
+$ exists target/test-classes/demo/SimpleTest.class
+$ exists target/test-classes/META-INF/compilation-cache.test.kotlin_module
+> pushRemoteCache
+> clean
+$ absent target/classes/demo/SimpleKt.class
+$ absent target/classes/META-INF/compilation-cache.main.kotlin_module
+$ absent target/test-classes/demo/SimpleTest.class
+$ absent target/test-classes/META-INF/compilation-cache.test.kotlin_module
+> pullRemoteCache
+$ exists target/classes/demo/SimpleKt.class
+$ absent target/classes/_kotlin_module_backup_/compilation-cache.main.kotlin_module
+$ absent target/classes/_kotlin_module_backup_
+$ exists target/classes/META-INF/compilation-cache.main.kotlin_module
+$ exists target/test-classes/demo/SimpleTest.class
+$ absent target/test-classes/_kotlin_module_backup_/compilation-cache.test.kotlin_module
+$ absent target/test-classes/_kotlin_module_backup_
+$ exists target/test-classes/META-INF/compilation-cache.test.kotlin_module
+> Test/compile

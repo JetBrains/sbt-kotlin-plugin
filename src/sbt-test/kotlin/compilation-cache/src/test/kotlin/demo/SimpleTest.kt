@@ -1,11 +1,12 @@
+package demo
+
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import junit.framework.TestCase.assertEquals
 
 class SimpleTest {
 
   @Test
-  fun `should works`() {
+  fun `2 + 2 should be 4`() {
     assertEquals(4, 2 + 2)
   }
-
 }

@@ -1,12 +1,14 @@
-import org.junit.Test
-import junit.framework.TestCase.assertEquals
+package demo
+
 import demo.Calculator
 import demo.JavaCalculator
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class MixedTest {
 
   @Test
-  fun `should sum 2 plus 2`() {
+  fun `2 + 2 should be 4`() {
     val calculator = Calculator(JavaCalculator())
     assertEquals(4, calculator.sum(2, 2))
   }

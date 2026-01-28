@@ -1,0 +1,13 @@
+> compile
+$ exists target/classes/demo/Person.class
+$ exists target/classes/demo/MainKt.class
+$ absent target/classes/demo/Foo.class
+$ exists target/classes/META-INF/incremental.main.kotlin_module
+> backupClasses
+$ copy-file changes/main.kt src/main/kotlin/demo/main.kt
+$ copy-file changes/Foo.kt src/main/kotlin/demo/Foo.kt
+> compile
+$ exists target/classes/demo/Person.class
+$ exists target/classes/demo/MainKt.class
+$ exists target/classes/demo/Foo.class
+> assertClassesContents

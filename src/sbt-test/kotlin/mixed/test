@@ -1,6 +1,8 @@
-> debug
 > compile
-> info
+$ exists target/classes/demo/JavaA.class
+$ exists target/classes/demo/JavaB.class
+$ exists target/classes/demo/KotlinA.class
+$ exists target/classes/demo/KotlinB.class
 $ exists target/classes/demo/SimpleKt.class
+$ exists target/classes/Script.class
 $ exists target/classes/META-INF/mixed.main.kotlin_module
-> checkClasses

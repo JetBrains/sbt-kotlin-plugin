@@ -1,4 +1,5 @@
 package demo
+
 fun main(args: Array<String>) {
   // Test some Kotlin 1.2 features
   val items = (1..9).map { it * it }
