@@ -1,11 +1,11 @@
 package org.jetbrains.sbt.kotlin
 
-import sbt.Keys.TaskStreams
+import sbt.util.Logger
 
 import java.lang.reflect.Method
 import scala.jdk.CollectionConverters.seqAsJavaListConverter
 
-case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
+case class KotlinStub(log: Logger, kref: KotlinReflection) {
   import kref.*
 
   import language.reflectiveCalls
@@ -26,11 +26,11 @@ case class KotlinStub(s: TaskStreams, kref: KotlinReflection) {
           val msg = Option(l).map(x => x.getPath).fold(message.toString)(loc =>
             loc + ": " + l.getLine + ", " + l.getColumn + ": " + message)
           severity.toString match {
-            case "INFO"                 => s.log.info(msg)
-            case "WARNING"              => s.log.warn(msg)
-            case "STRONG_WARNING"       => s.log.warn(msg)
-            case "ERROR"  | "EXCEPTION" => s.log.error(msg)
-            case "OUTPUT" | "LOGGING"   => s.log.debug(msg)
+            case "INFO"                 => log.info(msg)
+            case "WARNING"              => log.warn(msg)
+            case "STRONG_WARNING"       => log.warn(msg)
+            case "ERROR"  | "EXCEPTION" => log.error(msg)
+            case "OUTPUT" | "LOGGING"   => log.debug(msg)
           }
           return null
         } else if (method.getName == "hasErrors") {

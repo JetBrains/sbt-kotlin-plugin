@@ -21,7 +21,7 @@ object KotlinCompile {
     memoize[Classpath, KotlinReflection](KotlinReflection.fromClasspath)
 
   def compileTask: Def.Initialize[Task[CompileResult]] = Def.task {
-    val logStreams = streams.value
+    val log = streams.value.log
     val inputs = (compile / compileInputs).value
     val converter = inputs.options().converter().orElse(PlainVirtualFileConverter.converter)
     val out = inputs.options().classesDirectory()
@@ -115,7 +115,7 @@ object KotlinCompile {
       converter,
       inputs.setup().reporter(),
       config.progress,
-      logStreams
+      log
     )
 
     val (success, analysis) = Incremental(
@@ -131,7 +131,7 @@ object KotlinCompile {
       None,
       None,
       config.progress,
-      logStreams.log,
+      log,
     )(compiler.compile)
 
     CompileResult.of(analysis, miniSetup, success)

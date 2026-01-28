@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.kotlin
 
 import sbt.JavaAnalyzeBridge
-import sbt.Keys.{Classpath, TaskStreams}
+import sbt.Keys.Classpath
 import sbt.internal.inc.classpath.ClasspathUtil
 import sbt.internal.inc.javac.{DirectoryClassFinder, JarClassFinder}
 import sbt.internal.inc.{ClassToAPI, CompileFailed}
@@ -42,7 +42,7 @@ class AnalyzingKotlinCompiler(
   converter: FileConverter,
   reporter: Reporter,
   progressOpt: Option[CompileProgress],
-  s: TaskStreams
+  log: Logger
 ) {
 
   def compile(
@@ -87,7 +87,7 @@ class AnalyzingKotlinCompiler(
           val javaCount = javaSources.size
           s"compiling $javaCount Java ${pluralizeSource(javaCount)} to ${out.getAbsolutePath} ..."
         }
-      s.log.info(message)
+      log.info(message)
 
       // Record progress for Kotlin and Java compilation
       val somePhase = "<some phase>"
@@ -102,11 +102,11 @@ class AnalyzingKotlinCompiler(
       }
 
       if (kotlinSources.nonEmpty) {
-        s.log.debug(s"compiling Kotlin sources: $kotlinSources")
+        log.debug(s"compiling Kotlin sources: $kotlinSources")
 
-        timed(kotlinCompilationPhase, s.log) {
+        timed(kotlinCompilationPhase, log) {
           import language.reflectiveCalls
-          val stub = KotlinStub(s, KotlinCompile.memoizedKotlinReflection(compilerClasspath))
+          val stub = KotlinStub(log, KotlinCompile.memoizedKotlinReflection(compilerClasspath))
           val args = stub.compilerArgs
           stub.parse(kotlinVersion, args.instance, "-Xallow-no-source-files" :: kotlinOptions.toList)
           args.multiPlatform = false
@@ -147,9 +147,9 @@ class AnalyzingKotlinCompiler(
       }
 
       if (javaSources.nonEmpty) {
-        s.log.debug(s"compiling Java sources: $javaSources")
+        log.debug(s"compiling Java sources: $javaSources")
 
-        timed(javaCompilationPhase, s.log) {
+        timed(javaCompilationPhase, log) {
           val absoluteClasspath = converter.toVirtualFile(out.toPath) +: classpath.map(_.data.toPath).map(converter.toVirtualFile)
           val args = sbt.internal.inc.javac.JavaCompiler.commandArguments(
             absoluteClasspath,
@@ -165,7 +165,7 @@ class AnalyzingKotlinCompiler(
           )
 
           val success =
-            javac.run(javaSrcs, args.toArray, output, incToolOptions, reporter, s.log)
+            javac.run(javaSrcs, args.toArray, output, incToolOptions, reporter, log)
 
           if (!success) {
             /* Assume that no Scalac problems are reported for a Javac-related
@@ -199,7 +199,7 @@ class AnalyzingKotlinCompiler(
         Seq(out.toPath) ++ classpath.files.map(_.toPath) ++ searchClasspath.map(converter.toPath)
       )
 
-      timed(bytecodeAnalysisPhase, s.log) {
+      timed(bytecodeAnalysisPhase, log) {
         for {
           (classFinder, oldClasses, srcs) <- memo
         } {
@@ -207,7 +207,7 @@ class AnalyzingKotlinCompiler(
           try {
             val newClasses = classes.paths.toSet -- oldClasses
             classFileManager.generated(newClasses.toArray.map(converter.toVirtualFile))
-            JavaAnalyzeBridge(newClasses.toSeq, srcs, s.log, output, None)(callback, loader, readAPI)
+            JavaAnalyzeBridge(newClasses.toSeq, srcs, log, output, None)(callback, loader, readAPI)
           } finally classes.close()
         }
       }
