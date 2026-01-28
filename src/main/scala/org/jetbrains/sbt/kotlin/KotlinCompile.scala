@@ -18,13 +18,13 @@ object KotlinCompile {
   }
 
   private[kotlin] lazy val memoizedKotlinReflection =
-    memoize[Classpath, KotlinReflection](KotlinReflection.fromClasspath)
+    memoize[Seq[Path], KotlinReflection](KotlinReflection.fromClasspath)
 
   def compileTask: Def.Initialize[Task[CompileResult]] = Def.task {
     val log = streams.value.log
     val inputs = (compile / compileInputs).value
     val converter = inputs.options().converter().orElse(PlainVirtualFileConverter.converter)
-    val out = inputs.options().classesDirectory()
+    val out = inputs.options().classesDirectory().toAbsolutePath.normalize()
 
     val srcs = inputs.options().sources().toSet
 
@@ -96,6 +96,12 @@ object KotlinCompile {
       Files.createDirectories(out)
     }
 
+    val dependenciesClasspath =
+      dependencyClasspath.value.map(_.data.toPath.toAbsolutePath.normalize())
+
+    val compilerClasspath: Seq[Path] =
+      (KotlinInternal / managedClasspath).value.map(_.data.toPath.toAbsolutePath.normalize())
+
     val compiler = new AnalyzingKotlinCompiler(
       kotlincVersion,
       kotlincOptions.value,
@@ -108,8 +114,8 @@ object KotlinCompile {
       inputs.setup().incrementalCompilerOptions().useCustomizedFileManager(),
       config.sources,
       classpathOptions.value,
-      dependencyClasspath.value,
-      (KotlinInternal / managedClasspath).value,
+      dependenciesClasspath,
+      compilerClasspath,
       searchClasspath,
       output,
       converter,

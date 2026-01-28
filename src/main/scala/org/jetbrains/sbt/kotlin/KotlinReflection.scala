@@ -1,15 +1,14 @@
 package org.jetbrains.sbt.kotlin
 
-import sbt.Def.Classpath
-import sbt.filesToFinder
 import sbt.internal.inc.classpath.ClasspathUtil
 
 import java.lang.reflect.{Field, Method}
+import java.nio.file.Path
 import scala.util.Try
 
 object KotlinReflection {
-  def fromClasspath(cp: Classpath): KotlinReflection = {
-    val cl = ClasspathUtil.toLoader(cp.map(_.data))
+  def fromClasspath(cp: Seq[Path]): KotlinReflection = {
+    val cl = ClasspathUtil.toLoader(cp)
     val compilerClass = cl.loadClass("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")
     val servicesClass = cl.loadClass("org.jetbrains.kotlin.config.Services")
     val messageCollectorClass = cl.loadClass("org.jetbrains.kotlin.cli.common.messages.MessageCollector")
@@ -36,11 +35,13 @@ object KotlinReflection {
       messageCollectorClass,
       commonCompilerArgsClass,
       compilerExec,
-      servicesClass.getDeclaredField("EMPTY"))
+      servicesClass.getDeclaredField("EMPTY")
+    )
   }
 }
 
-case class KotlinReflection(cl: ClassLoader,
+case class KotlinReflection(
+  cl: ClassLoader,
   servicesClass: Class[?],
   compilerClass: Class[?],
   compilerArgsClass: Class[?],
