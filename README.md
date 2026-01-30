@@ -1,8 +1,18 @@
 [![Version](https://index.scala-lang.org/jetbrains/sbt-kotlin-plugin/sbt-kotlin-plugin/latest.svg)](https://index.scala-lang.org/jetbrains/sbt-kotlin-plugin/sbt-kotlin-plugin)
 
-# kotlin-plugin
+# sbt-kotlin-plugin
 
-Build kotlin code using sbt
+Build Kotlin code using sbt.
+
+## Attribution
+
+`sbt-kotlin-plugin` started off as a fork of [kotlin-plugin](https://github.com/pfn/kotlin-plugin) but has been
+completely revamped with time and now shares almost no code with the original repository.
+
+## Requirement
+`sbt-kotlin-plugin` requires sbt 1.6 or later. Earlier sbt versions are not supported and will
+result in exceptions being thrown at runtime. This is because the plugin depends on specific
+functionality first shipped with sbt 1.6.
 
 ## Usage
 
