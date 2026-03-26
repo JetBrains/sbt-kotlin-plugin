@@ -4,10 +4,10 @@ import scala.math.Ordered.orderingToOrdered
 import scala.math.Ordering.Implicits.seqDerivedOrdering
 
 // based on https://github.com/JetBrains/intellij-community/blob/c8ba8401f73488f966b5ed5b5c5afaa38a9bcbdf/plugins/kotlin/base/plugin/src/org/jetbrains/kotlin/idea/compiler/configuration/IdeKotlinVersion.kt#L24
-final class KotlinVersion private[kotlin](val major: Int, val minor: Int, val patch: Int,
-                                          val kindSuffix: KotlinVersion.Kind,
-                                          val buildNumber: Option[String]) extends Ordered[KotlinVersion] {
-  override def compare(that: KotlinVersion): Int = {
+final class SbtKotlinVersion private[kotlin](val major: Int, val minor: Int, val patch: Int,
+                                          val kindSuffix: SbtKotlinVersion.Kind,
+                                          val buildNumber: Option[String]) extends Ordered[SbtKotlinVersion] {
+  override def compare(that: SbtKotlinVersion): Int = {
     val base = (major, minor, patch).compare((that.major, that.minor, that.patch))
     if (base != 0) base
     else {
@@ -17,18 +17,18 @@ final class KotlinVersion private[kotlin](val major: Int, val minor: Int, val pa
   }
 
   override def equals(that: Any): Boolean = that match {
-    case version: KotlinVersion => compare(version) == 0
+    case version: SbtKotlinVersion => compare(version) == 0
     case _ => false
   }
 }
 
-object KotlinVersion {
+object SbtKotlinVersion {
   private val kotlinVersionRegex = "^(\\d+)\\.(\\d+)\\.(\\d+)(?:-([A-Za-z]\\w+(?:\\.\\d+)?(?:-release)?))?(?:-(\\d+)?)?$"
     .r("major", "minor", "patch", "kindSuffix", "buildNumber")
 
   private val IdeBuildRegex = "ij\\d+(?:\\.\\d+)?".r
 
-  def apply(versionString: String): KotlinVersion = versionString match {
+  def apply(versionString: String): SbtKotlinVersion = versionString match {
     case kotlinVersionRegex(majorStr, minorStr, patchStr, kindSuffixStr, buildNumberStr) =>
       val majorValue = majorStr.parseVersionComponent("major")
       val minorValue = minorStr.parseVersionComponent("minor")
@@ -58,7 +58,7 @@ object KotlinVersion {
 
       val buildNumber = Option(buildNumberStr).filterNot(_.isEmpty)
 
-      new KotlinVersion(majorValue, minorValue, patchValue, kindSuffix, buildNumber)
+      new SbtKotlinVersion(majorValue, minorValue, patchValue, kindSuffix, buildNumber)
     case _ => throw new IllegalArgumentException(s"Unsupported Kotlin version: $versionString")
   }
 

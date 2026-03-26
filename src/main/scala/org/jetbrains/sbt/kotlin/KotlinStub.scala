@@ -55,7 +55,7 @@ case class KotlinStub(log: Logger, kref: KotlinReflection) {
 
     // parse method received a new argument in 1.7.0
     // see https://github.com/JetBrains/kotlin/commit/683a3e74a000f959a932505592e1d68a073296cd
-    if (KotlinVersion(kotlinVersion) >= KotlinVersion("1.7.0")) {
+    if (SbtKotlinVersion(kotlinVersion) >= SbtKotlinVersion("1.7.0")) {
       val parserMethod = parser.getMethod(
         parseMethodName,
         stringListClass,
