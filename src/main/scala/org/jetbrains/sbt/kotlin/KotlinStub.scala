@@ -3,9 +3,9 @@ package org.jetbrains.sbt.kotlin
 import sbt.util.Logger
 
 import java.lang.reflect.Method
-import scala.jdk.CollectionConverters.seqAsJavaListConverter
+import scala.jdk.CollectionConverters.*
 
-case class KotlinStub(log: Logger, kref: KotlinReflection) {
+private final class KotlinStub(log: Logger, kref: KotlinReflection) {
   import kref.*
 
   def messageCollector: AnyRef = {

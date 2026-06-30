@@ -5,7 +5,7 @@ import scala.language.dynamics
 /**
  * Encapsulates reflective access to the Kotlin compiler internal args class.
  */
-final class CompilerArgs(kref: KotlinReflection) extends Dynamic {
+private final class CompilerArgs(kref: KotlinReflection) extends Dynamic {
   val instance: AnyRef = kref.compilerArgsClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
 
   def selectDynamic[A](field: String): A = {
@@ -28,5 +28,5 @@ final class CompilerArgs(kref: KotlinReflection) extends Dynamic {
 
   private def getterName(field: String) = s"get${withFirstUpper(field)}"
   private def setterName(field: String) = s"set${withFirstUpper(field)}"
-  private def withFirstUpper(string: String): String = string.head.toUpper + string.tail
+  private def withFirstUpper(string: String): String = string.head.toUpper.toString ++ string.tail
 }

@@ -21,7 +21,7 @@ import scala.jdk.CollectionConverters.*
  * the source code of `sbt.internal.inc.javac.AnalyzingJavaCompiler`, as seen in
  * https://github.com/sbt/zinc/blob/7aa92cb48872f28dd44c1bb7520a84a0e02f230e/zinc/src/main/scala/sbt/internal/inc/javac/AnalyzingJavaCompiler.scala.
  */
-class AnalyzingKotlinCompiler(
+private final class AnalyzingKotlinCompiler(
   kotlinVersion: String,
   kotlinOptions: Seq[String],
   jvmTarget: String,
@@ -106,7 +106,7 @@ class AnalyzingKotlinCompiler(
         log.debug(s"compiling Kotlin sources: $kotlinSources")
 
         timed(kotlinCompilationPhase, log) {
-          val stub = KotlinStub(log, KotlinCompile.memoizedKotlinReflection(compilerClasspath))
+          val stub = new KotlinStub(log, KotlinCompile.memoizedKotlinReflection(compilerClasspath))
           val args = stub.compilerArgs
           stub.parse(kotlinVersion, args.instance, "-Xallow-no-source-files" :: kotlinOptions.toList)
           args.multiPlatform = false
@@ -231,7 +231,7 @@ class AnalyzingKotlinCompiler(
     }
 
   /** Time how long it takes to run various compilation tasks. */
-  private[this] def timed[T](label: String, log: Logger)(t: => T): T = {
+  private def timed[T](label: String, log: Logger)(t: => T): T = {
     val start = System.nanoTime
     val result = t
     val elapsed = System.nanoTime - start

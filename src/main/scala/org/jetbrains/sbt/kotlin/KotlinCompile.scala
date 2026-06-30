@@ -1,15 +1,15 @@
 package org.jetbrains.sbt.kotlin
 
-import org.jetbrains.sbt.kotlin.Keys.*
-import sbt.*
 import sbt.Keys.*
 import sbt.internal.inc.*
 import sbt.internal.inc.caching.ClasspathCache
+import sbtcompat.PluginCompat.toNioPaths
+import xsbti.FileConverter
 import xsbti.compile.*
 
 import java.nio.file.{Files, Path}
 
-object KotlinCompile {
+private[kotlin] object KotlinCompile {
 
   private def memoize[K, V](f: K => V): K => V = {
     val cache = new java.util.concurrent.ConcurrentHashMap[K, V]()
@@ -20,10 +20,18 @@ object KotlinCompile {
   private[kotlin] lazy val memoizedKotlinReflection =
     memoize[Seq[Path], KotlinReflection](KotlinReflection.fromClasspath)
 
-  def compileTask: Def.Initialize[Task[CompileResult]] = Def.task {
-    val log = streams.value.log
-    val inputs = (compile / compileInputs).value
-    val converter = inputs.options().converter().orElse(PlainVirtualFileConverter.converter)
+  private[kotlin] def compileIncremental(
+    streams: TaskStreams,
+    inputs: Inputs,
+    converter: FileConverter,
+    kotlinVersion: String,
+    kotlincOptions: Seq[String],
+    kotlincJvmTarget: String,
+    kotlinModuleName: String,
+    kotlincPluginOptions: Seq[String],
+    classpathOptions: ClasspathOptions,
+    compilerClasspath: Classpath
+  ): CompileResult = {
     val out = inputs.options().classesDirectory().toAbsolutePath.normalize()
 
     val srcs = inputs.options().sources().toSet
@@ -33,8 +41,6 @@ object KotlinCompile {
       override def getOutputDirectoryAsPath: Path = out
     }
 
-    val kotlincVersion = kotlinVersion.value
-
     val previousResult = inputs.previousResult()
     val previousAnalysis = previousResult.analysis().orElse(Analysis.empty)
 
@@ -43,6 +49,8 @@ object KotlinCompile {
     val classpathAsNioPaths = classpathIndexedSeq.map(converter.toPath(_).toAbsolutePath.normalize())
 
     val stamper = inputs.options().stamper().orElseGet(() => Stamps.timeWrapBinaryStamps(converter))
+
+    val javacOptionsAsIndexedSeq = inputs.options().javacOptions().toIndexedSeq
 
     val config = {
       val outputJarContent = JarUtils.createOutputJarContent(output)
@@ -55,8 +63,8 @@ object KotlinCompile {
         classpathIndexedSeq,
         inputs.setup().cache(),
         optionalToOption(inputs.setup().progress()),
-        inputs.options().scalacOptions(),
-        inputs.options().javacOptions(),
+        inputs.options().scalacOptions().toIndexedSeq,
+        javacOptionsAsIndexedSeq,
         previousAnalysis,
         optionalToOption(previousResult.setup()),
         inputs.setup().perClasspathEntryLookup(),
@@ -86,7 +94,7 @@ object KotlinCompile {
     val miniSetup = MiniSetup.of(
       output,
       MiniOptions.of(classpathHash, inputs.options().scalacOptions(), inputs.options().javacOptions()),
-      kotlincVersion,
+      kotlinVersion,
       inputs.options().order(),
       true,
       inputs.setup().extra()
@@ -98,29 +106,31 @@ object KotlinCompile {
       Files.createDirectories(out)
     }
 
-    val compilerClasspath: Seq[Path] =
-      (KotlinInternal / managedClasspath).value.map(_.data.toPath.toAbsolutePath.normalize())
+    val compilerClasspathAsNioPaths = {
+      implicit val c: FileConverter = converter
+      toNioPaths(compilerClasspath)
+    }
 
     val compiler = new AnalyzingKotlinCompiler(
-      kotlincVersion,
-      kotlincOptions.value,
-      kotlincJvmTarget.value,
-      kotlinModuleName.value,
-      kotlincPluginOptions.value,
+      kotlinVersion,
+      kotlincOptions,
+      kotlincJvmTarget,
+      kotlinModuleName,
+      kotlincPluginOptions,
       inputs.compilers().javaTools().javac(),
-      inputs.options().javacOptions(),
+      javacOptionsAsIndexedSeq,
       inputs.compilers().scalac().scalaInstance(),
       inputs.setup().incrementalCompilerOptions().useCustomizedFileManager(),
       config.sources,
-      classpathOptions.value,
+      classpathOptions,
       classpathAsNioPaths,
-      compilerClasspath,
+      compilerClasspathAsNioPaths,
       searchClasspath,
       output,
       converter,
       inputs.setup().reporter(),
       config.progress,
-      log
+      streams.log
     )
 
     val (success, analysis) = Incremental(
@@ -136,7 +146,7 @@ object KotlinCompile {
       None,
       None,
       config.progress,
-      log,
+      streams.log
     )(compiler.compile)
 
     CompileResult.of(analysis, miniSetup, success)

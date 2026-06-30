@@ -14,6 +14,6 @@ object Scripted {
 
   val settings: Seq[Def.Setting[?]] = Seq(
     passPluginVersion,
-    forwardIvyHomeProperty,
+    forwardIvyHomeProperty
   )
 }

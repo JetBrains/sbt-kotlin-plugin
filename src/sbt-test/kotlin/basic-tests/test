@@ -1,7 +1,7 @@
 > compile
 > test
-$ exists target/classes/demo/SimpleKt.class
-$ exists target/test-classes/demo/SimpleTest.class
-$ exists target/classes/META-INF/basic-tests.main.kotlin_module
-$ exists target/test-classes/META-INF/basic-tests.test.kotlin_module
+$ exists target/**/classes/demo/SimpleKt.class
+$ exists target/**/test-classes/demo/SimpleTest.class
+$ exists target/**/classes/META-INF/basic-tests.main.kotlin_module
+$ exists target/**/test-classes/META-INF/basic-tests.test.kotlin_module
 > checkTestPass "demo.SimpleTest"

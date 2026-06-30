@@ -1,10 +1,12 @@
 package org.jetbrains.sbt.kotlin
 
+import org.jetbrains.sbt.kotlin.OrderingImplicitsCompat.seqDerivedOrdering
+
 import scala.math.Ordered.orderingToOrdered
-import scala.math.Ordering.Implicits.seqDerivedOrdering
+import scala.util.matching.Regex
 
 // based on https://github.com/JetBrains/intellij-community/blob/c8ba8401f73488f966b5ed5b5c5afaa38a9bcbdf/plugins/kotlin/base/plugin/src/org/jetbrains/kotlin/idea/compiler/configuration/IdeKotlinVersion.kt#L24
-final class KotlinVersion private[kotlin](val major: Int, val minor: Int, val patch: Int,
+private final class KotlinVersion private[kotlin](val major: Int, val minor: Int, val patch: Int,
                                           val kindSuffix: KotlinVersion.Kind,
                                           val buildNumber: Option[String]) extends Ordered[KotlinVersion] {
   override def compare(that: KotlinVersion): Int = {
@@ -22,9 +24,11 @@ final class KotlinVersion private[kotlin](val major: Int, val minor: Int, val pa
   }
 }
 
-object KotlinVersion {
-  private val kotlinVersionRegex = "^(\\d+)\\.(\\d+)\\.(\\d+)(?:-([A-Za-z]\\w+(?:\\.\\d+)?(?:-release)?))?(?:-(\\d+)?)?$"
-    .r("major", "minor", "patch", "kindSuffix", "buildNumber")
+private object KotlinVersion {
+  private val kotlinVersionRegex: Regex = new Regex(
+    regex = "^(\\d+)\\.(\\d+)\\.(\\d+)(?:-([A-Za-z]\\w+(?:\\.\\d+)?(?:-release)?))?(?:-(\\d+)?)?$",
+    groupNames = "major", "minor", "patch", "kindSuffix", "buildNumber"
+  )
 
   private val IdeBuildRegex = "ij\\d+(?:\\.\\d+)?".r
 
@@ -42,13 +46,13 @@ object KotlinVersion {
         case Some("snapshot") | Some("local") =>
           Some(Kind.Snapshot)
         case Some(suffix) if suffix.startsWith("rc") =>
-          parseKind(suffix, "rc")(Kind.ReleaseCandidate)
+          parseKind(suffix, "rc")(Kind.ReleaseCandidate.apply)
         case Some(suffix) if suffix.startsWith("beta") =>
-          parseKind(suffix, "beta")(Kind.Beta)
+          parseKind(suffix, "beta")(Kind.Beta.apply)
         case Some(suffix) if suffix.startsWith("eap") =>
-          parseKind(suffix, "eap")(Kind.Eap)
+          parseKind(suffix, "eap")(Kind.Eap.apply)
         case Some(suffix) if suffix.startsWith("m") =>
-          parseKind(suffix, "m")(Kind.Milestone)
+          parseKind(suffix, "m")(Kind.Milestone.apply)
         case Some(suffix) if suffix.matches(IdeBuildRegex.regex) =>
           val parts = suffix.stripPrefix("ij").split('.').toSeq.map(_.toInt)
           Some(Kind.ForIde(suffix, parts))

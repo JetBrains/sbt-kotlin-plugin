@@ -2,7 +2,7 @@ package sbt
 
 import sbt.internal.inc.classfile.JavaAnalyze
 import xsbti.compile.Output
-import xsbti.{VirtualFile, VirtualFileRef}
+import xsbti.{AnalysisCallback, VirtualFile, VirtualFileRef}
 
 object JavaAnalyzeBridge {
   def apply(
@@ -12,7 +12,7 @@ object JavaAnalyzeBridge {
     output: Output,
     finalJarOutput: Option[java.nio.file.Path]
   )(
-    analysis: xsbti.AnalysisCallback,
+    analysis: AnalysisCallback,
     loader: ClassLoader,
     readAPI: (VirtualFileRef, Seq[Class[?]]) => Set[(String, String)]
   ): Unit = JavaAnalyze(newClasses, sources, log, output, finalJarOutput)(analysis, loader, readAPI)

@@ -1,7 +1,8 @@
-import org.jetbrains.sbt.kotlin.Keys._
+import org.jetbrains.sbt.kotlin.Keys.*
 
 import sbt.complete.Parsers.spaceDelimited
 
+import java.nio.file.{Files, Path}
 import scala.xml.{NodeSeq, XML}
 
 name := "basic-tests"
@@ -18,7 +19,15 @@ checkTestPass := {
   val args: Seq[String] = spaceDelimited("<arg>").parsed
   val testName = args.head
 
-  val xml = XML.load(s"target/test-reports/TEST-$testName.xml")
+  val testReportPath = {
+    val xmlFileName = s"TEST-$testName.xml"
+    val sbt1 = Option(Path.of("target", "test-reports", xmlFileName)).filter(Files.exists(_))
+    val converter = fileConverter.value
+    val sbt2 = Option(converter.toPath((Test / backendOutput).value).getParent.resolve("test-reports").resolve(xmlFileName)).filter(Files.exists(_))
+    sbt1.orElse(sbt2).getOrElse(sys.error("Could not find test report xml file")).toAbsolutePath.normalize().toString
+  }
+
+  val xml = XML.load(testReportPath)
   val totalTests = getInt(xml \\ "testsuite" \ "@tests")
   val failures = getInt(xml \\ "testsuite" \ "@failures")
   val errors = getInt(xml \\ "testsuite" \ "@errors")

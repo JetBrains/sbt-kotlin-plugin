@@ -11,7 +11,12 @@ private[kotlin] object RemoteCache {
   private final val KotlinModuleBackupDir = "_kotlin_module_backup_"
   private final val MetaInfDir = "META-INF"
 
-  def packageCacheTask: Def.Initialize[Task[File]] = Def.task {
+  def remoteCacheSettings: Seq[Setting[?]] = Seq(
+    packageCache := packageCacheTask.value,
+    pullRemoteCache := pullRemoteCacheTask.value
+  )
+
+  private def packageCacheTask: Def.Initialize[Task[File]] = Def.task {
     val cacheArtifact = packageCache.value
     val name = kotlinModuleName.value
     val kotlinModuleFileName = s"$name.kotlin_module"
@@ -25,7 +30,7 @@ private[kotlin] object RemoteCache {
     cacheArtifact
   }
 
-  def pullRemoteCacheTask: Def.Initialize[Task[Unit]] = Def.task {
+  private def pullRemoteCacheTask: Def.Initialize[Task[Unit]] = Def.task {
     pullRemoteCache.value
     val name = kotlinModuleName.value
     val kotlinModuleFileName = s"$name.kotlin_module"

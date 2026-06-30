@@ -1,8 +1,8 @@
 > compile
 > test
-$ exists target/classes/demo/JavaCalculator.class
-$ exists target/classes/demo/Calculator.class
-$ exists target/test-classes/demo/MixedTest.class
-$ exists target/classes/META-INF/mixed-tests.main.kotlin_module
-$ exists target/test-classes/META-INF/mixed-tests.test.kotlin_module
+$ exists target/**/classes/demo/JavaCalculator.class
+$ exists target/**/classes/demo/Calculator.class
+$ exists target/**/test-classes/demo/MixedTest.class
+$ exists target/**/classes/META-INF/mixed-tests.main.kotlin_module
+$ exists target/**/test-classes/META-INF/mixed-tests.test.kotlin_module
 > checkTestPass "demo.MixedTest"

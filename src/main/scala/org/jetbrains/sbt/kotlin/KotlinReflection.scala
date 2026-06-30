@@ -6,7 +6,7 @@ import java.lang.reflect.{Field, Method}
 import java.nio.file.Path
 import scala.util.Try
 
-object KotlinReflection {
+private object KotlinReflection {
   def fromClasspath(cp: Seq[Path]): KotlinReflection = {
     val cl = ClasspathUtil.toLoader(cp)
     val compilerClass = cl.loadClass("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")
@@ -40,7 +40,7 @@ object KotlinReflection {
   }
 }
 
-case class KotlinReflection(
+private final case class KotlinReflection(
   cl: ClassLoader,
   servicesClass: Class[?],
   compilerClass: Class[?],

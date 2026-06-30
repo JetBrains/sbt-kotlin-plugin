@@ -1,6 +1,8 @@
 package org.jetbrains.sbt.kotlin
 
 import sbt.{Def, *}
+import sbtcompat.PluginCompat.toNioPaths
+import xsbti.FileConverter
 
 object Keys {
   val Kotlin = config("kotlin")
@@ -27,10 +29,10 @@ object Keys {
   def kotlinPlugin(name: String): Def.Setting[Seq[ModuleID]] = sbt.Keys.libraryDependencies +=
     "org.jetbrains.kotlin" % ("kotlin-" + name) % kotlinVersion.value % "compile-internal"
 
-  def kotlinClasspath(config: Configuration, classpathKey: Def.Initialize[sbt.Keys.Classpath]): Setting[?] =
+  def kotlinClasspath(config: Configuration, classpathKey: Def.Initialize[sbt.Keys.Classpath])(implicit converter: FileConverter): Setting[?] =
     config / kotlincOptions ++= {
       "-cp" ::
-        classpathKey.value.map(_.data.getAbsolutePath).mkString(java.io.File.pathSeparator) ::
+        toNioPaths(classpathKey.value).map(_.toAbsolutePath.normalize().toString).mkString(java.io.File.pathSeparator) ::
         Nil
     }
 
