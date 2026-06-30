@@ -19,4 +19,4 @@ jobs:
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - name: Compile & Test
-        run: sbt test scripted
+        run: sbt +test +scripted
