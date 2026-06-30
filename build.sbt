@@ -14,5 +14,5 @@ lazy val sbtKotlinPlugin = project.in(file("."))
     },
     scalacOptions ++= Seq("-deprecation", "-feature", "-Werror", "-Xlint", "-release", "8"),
     javacOptions  ++= Seq("--release", "8"),
-    libraryDependencies += "org.scalameta" %% "munit" % "1.2.3" % Test
+    libraryDependencies += "org.scalameta" %% "munit" % "1.3.3" % Test
   )
