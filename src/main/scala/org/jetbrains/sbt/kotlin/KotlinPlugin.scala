@@ -4,6 +4,8 @@ import org.jetbrains.sbt.kotlin.Keys.*
 import sbt.Keys.*
 import sbt.plugins.JvmPlugin
 import sbt.{Def, Keys as _, *}
+import sbtcompat.PluginCompat.*
+import xsbti.FileConverter
 
 object KotlinPlugin extends AutoPlugin {
   override def trigger = noTrigger
@@ -33,17 +35,19 @@ object KotlinPlugin extends AutoPlugin {
     libraryDependencies ++= Seq(
       "org.jetbrains.kotlin" % "kotlin-compiler-embeddable" % kotlinVersion.value % KotlinInternal.name
     ) ++ kotlinScriptCompilerDeps(kotlinVersion.value, kotlinRuntimeProvided.value),
-    KotlinInternal / managedClasspath := Classpaths.managedJars(KotlinInternal, classpathTypes.value, update.value),
+    KotlinInternal / managedClasspath := Def.uncached {
+      implicit val converter: FileConverter = fileConverter.value
+      ClasspathsCompat.managedJars(KotlinInternal, classpathTypes.value, update.value)
+    },
     kotlinVersion := "1.3.50",
     kotlincJvmTarget := "1.6",
     kotlinRuntimeProvided := false,
     kotlincOptions := Nil,
     kotlincPluginOptions := Nil,
-    watchSources ++= {
-      import language.postfixOps
+    watchSources ++= Def.uncached {
       val kotlinSources = "*.kt" || "*.kts"
-      (Compile / sourceDirectories).value.flatMap(_ ** kotlinSources get) ++
-        (Test / sourceDirectories).value.flatMap(_ ** kotlinSources get)
+      (Compile / sourceDirectories).value.flatMap(d => (d ** kotlinSources).get()) ++
+        (Test / sourceDirectories).value.flatMap(d => (d ** kotlinSources).get())
     }
   ) ++ inConfig(Compile)(kotlinCompileSettings) ++
     inConfig(Test)(kotlinCompileSettings)
@@ -65,9 +69,7 @@ object KotlinPlugin extends AutoPlugin {
       s"$name.$config"
     },
     kotlincPluginOptions := kotlincPluginOptions.value,
-    compileIncremental := KotlinCompile.compileTask.value,
-    kotlinSource := sourceDirectory.value / "kotlin",
-    packageCache := RemoteCache.packageCacheTask.value,
-    pullRemoteCache := RemoteCache.pullRemoteCacheTask.value
-  )
+    compileIncremental := Def.uncached(CompileIncrementalCompat.compileIncrementalTaskImpl.value),
+    kotlinSource := sourceDirectory.value / "kotlin"
+  ) ++ RemoteCache.remoteCacheSettings
 }

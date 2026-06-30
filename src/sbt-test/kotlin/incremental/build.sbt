@@ -22,6 +22,7 @@ extraAppenders := {
   (key: ScopedKey[?]) => appender +: existing(key)
 }
 
+@transient
 lazy val backupClasses = taskKey[Unit]("Backup compiled class files")
 
 backupClasses := {
@@ -38,6 +39,7 @@ backupClasses := {
   toBackup.foreach { path => Files.copy(path, backupClassesDir.resolve(path.getFileName)) }
 }
 
+@transient
 lazy val assertClassesContents = taskKey[Unit]("Assert compiled classes contents")
 
 assertClassesContents := {
