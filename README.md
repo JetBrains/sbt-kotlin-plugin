@@ -7,7 +7,8 @@ Build Kotlin code using sbt.
 ## Attribution
 
 `sbt-kotlin-plugin` started off as a fork of [kotlin-plugin](https://github.com/pfn/kotlin-plugin) but has been
-completely revamped with time and now shares almost no code with the original repository.
+completely revamped with time and now shares almost no code with the original repository. We thank the original
+authors and maintainers for their work.
 
 ## Requirement
 `sbt-kotlin-plugin` requires sbt 1.6 or later. Earlier sbt versions are not supported and will
