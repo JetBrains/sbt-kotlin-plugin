@@ -4,6 +4,13 @@
 
 Build Kotlin code using sbt.
 
+The plugin is cross-published to:
+
+| sbt Version             | Published          |
+|-------------------------|--------------------|
+| 1.x (sbt 1.6+ required) | :white_check_mark: |
+| 2.x                     |                    |
+
 ## Attribution
 
 `sbt-kotlin-plugin` started off as a fork of [kotlin-plugin](https://github.com/pfn/kotlin-plugin) but has been
