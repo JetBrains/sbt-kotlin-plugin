@@ -2,14 +2,14 @@
 
 # sbt-kotlin-plugin
 
-Build Kotlin code using sbt.
+Compile Kotlin source code using sbt.
 
 The plugin is cross-published to:
 
 | sbt Version             | Published          |
-|-------------------------|--------------------|
+|:-----------------------:|:------------------:|
 | 1.x (sbt 1.6+ required) | :white_check_mark: |
-| 2.x                     |                    |
+| 2                       | :white_check_mark: |
 
 ## Attribution
 
