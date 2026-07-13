@@ -38,7 +38,7 @@ lazy val sbtKotlinPlugin = project.in(file("."))
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.12.13"
-        case "3" => "2.0.1"
+        case "3" => "2.0.2"
       }
     }
   )
