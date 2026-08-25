@@ -37,8 +37,8 @@ lazy val sbtKotlinPlugin = project.in(file("."))
     libraryDependencies += "org.scalameta" %% "munit" % "1.3.5" % Test,
     scriptedSbt := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.12.15"
-        case "3" => "2.0.6"
+        case "2.12" => "1.13.0"
+        case "3" => "2.0.7"
       }
     }
   )
