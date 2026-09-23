@@ -1,3 +1,6 @@
+# Boot sbt with a command that succeeds. Since sbt 2.1.0-M1, scripted discards a freshly started sbt instance
+# whose first command fails, and the new instance started for the next command truncates the log file.
+> initialize
 -> compile
 $ absent target/**/classes/demo/SimpleError.class
 $ absent target/**/classes/META-INF/compiler-error.main.kotlin_module

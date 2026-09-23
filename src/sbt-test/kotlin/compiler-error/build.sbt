@@ -22,6 +22,7 @@ extraAppenders := {
   (key: ScopedKey[?]) => appender +: existing(key)
 }
 
+@transient
 lazy val assertCompilerError = taskKey[Unit]("Assert compiler errors")
 
 assertCompilerError := {
@@ -40,8 +41,6 @@ assertCompilerError := {
     nonAnsi.startsWith("[info] compiling 1 Kotlin source to")
   }
   assert(compilingKotlinSourceMessage.isDefined, "Message 'compiling 1 Kotlin source' not found in log")
-
-  println(lines)
 
   val compilerError1 = lines.find { message =>
     val nonAnsi = stripAnsiCodes(message)
