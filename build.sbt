@@ -3,8 +3,8 @@
 addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0")
 
 // Updated automatically by .github/workflows/update-scripted-sbt.yml, which relies on these names
-val ScriptedSbt1Version = "1.13.0"
-val ScriptedSbt2Version = "2.1.0-RC1"
+val ScriptedSbt1Version = "1.13.1"
+val ScriptedSbt2Version = "2.1.0-RC2"
 
 ThisBuild / organization := "org.jetbrains.scala"
 
